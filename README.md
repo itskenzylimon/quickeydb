@@ -435,7 +435,7 @@ Make sure to add `FOREIGN KEY` between tables.
 
 ### Belongs To
 
-```diff
+```dart
 // Database/schema.dart
 class TaskSchema extends DataAccessObject<Task> {
   TaskSchema()
@@ -465,7 +465,7 @@ class TaskSchema extends DataAccessObject<Task> {
 
 ### Has One
 
-```diff
+```dart
 // Database/schema.dart
 class TaskSchema extends DataAccessObject<Task> {
   TaskSchema()
@@ -495,7 +495,7 @@ class TaskSchema extends DataAccessObject<Task> {
 
 ### Has Many
 
-```diff
+```dart
 // Database/schema.dart
 class UserSchema extends DataAccessObject<User> {
   UserSchema()
@@ -525,7 +525,7 @@ class UserSchema extends DataAccessObject<User> {
 
 _QuickeyDB_ is scalable with custom and complex queries so for example let's say we want to filter old users we can add:
 
-```diff
+```dart
 class UserSchema extends DataAccessObject<User> {
 
   ...
@@ -541,7 +541,7 @@ class UserSchema extends DataAccessObject<User> {
 
 You can also use more complex queries by accessing `database` object
 
-```diff
+```dart
 class UserSchema extends DataAccessObject<User> {
 
   ...
@@ -563,7 +563,7 @@ class UserSchema extends DataAccessObject<User> {
 
 To use persist database set `persist` property to `true`
 
-```diff
+```dart
 final quickeyDB = QuickeyDB(
   persist: true',
 )
@@ -584,7 +584,7 @@ To import exists database:
 
 3. Set `importDB` property to `true`
 
-```diff
+```dart
 final quickeyDB = QuickeyDB(
   importDB: true,
 )
@@ -598,7 +598,7 @@ Because we depend on CREATE TABLE command as explained, so one of the best solut
 
 1. Modify your SQL command by adding or removing some definitions like:
 
-```diff
+```dart
 class UserSchema extends DataAccessObject<User> {
   UserSchema()
       : super(
@@ -626,7 +626,7 @@ class UserSchema extends DataAccessObject<User> {
 
 1. Dont forget to change the database version.
 
-```diff
+```dart
 
   final quickeyDB = QuickeyDB.initialize!(
      dbVersion: 2, // any version
@@ -642,7 +642,7 @@ _Please Note That :: **Never** add `NOT NULL` columns while migrating unless you
 
 Note: By default `logger` is _enabled_ while you're in debugging mode, if you want to disable it just set `debugging` property to `false`.
 
-```diff
+```dart
 
   final quickeyDB = QuickeyDB.initialize!(
      debugging: false, // any version
