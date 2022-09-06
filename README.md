@@ -34,6 +34,8 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
 8. [Cool Color Logger](#cool-color-logger)
 9. [Taskan Crud Example](#taskan-crud-example)
 10. [Features Request & Bug Reports](#features-request-&-bug-reports)
+11. [Contributing](#contributing)
+12. [Articles and videos](#articles-and-videos)
 
 # Introduction to QuickeyDB:
 
@@ -657,6 +659,13 @@ Note: By default `logger` is _enabled_ while you're in debugging mode, if you wa
 # Features Request & Bug Reports
 
 Feature requests and bugs at the [issue tracker](https://github.com/itskenzylimon/quickeydb/issues).
+
+# Contributing
+- Fork the repo on [GitHub](https://github.com/itskenzylimon/quickeydb)
+- Clone the project
+- Commit changes with a well explained details
+- Push your work back up to your fork
+- Submit a Pull request so that we can review / merge your changes
 
 # Articles and videos
 
