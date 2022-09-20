@@ -29,8 +29,6 @@ pubspec.lock
 # ?
 .uuid
 
-/sqflite/example/.flutter-plugins-dependencies
-
 # Copied from flutter plugins
 .DS_Store
 .atom/
