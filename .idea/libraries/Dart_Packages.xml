@@ -271,7 +271,7 @@
         <entry key="sqflite_common">
           <value>
             <list>
-              <option value="/Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.2.1+1/lib" />
+              <option value="/Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.3.0/lib" />
             </list>
           </value>
         </entry>
@@ -397,7 +397,7 @@
       <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/pub_semver-2.1.1/lib" />
       <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/source_gen-1.2.2/lib" />
       <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/source_span-1.8.2/lib" />
-      <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.2.1+1/lib" />
+      <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.3.0/lib" />
       <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common_ffi-2.1.1+1/lib" />
       <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqlite3-1.8.0/lib" />
       <root url="file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/stack_trace-1.10.0/lib" />
