@@ -701,10 +701,11 @@ If submitting a pull request, please ensure the following standards are met:
 
 ## Additional information
 
-This package has **TWO CORE** dependencies including core SQLite Packages.
+This package has **THREE CORE** dependencies including core SQLite Packages.
 ```dart
-1. sqflite_common_ffi
-2. collection
+- sqflite_common_ffi // for desktop apps
+- sqflite_common
+- collection
 ```
 
 Developed by:

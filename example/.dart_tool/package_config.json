@@ -129,7 +129,7 @@
     },
     {
       "name": "sqflite_common",
-      "rootUri": "file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.2.1+1",
+      "rootUri": "file:///Applications/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.3.0",
       "packageUri": "lib/",
       "languageVersion": "2.16"
     },
@@ -194,7 +194,7 @@
       "languageVersion": "2.17"
     }
   ],
-  "generated": "2022-09-20T13:01:02.353730Z",
+  "generated": "2022-09-20T13:35:26.807969Z",
   "generator": "pub",
   "generatorVersion": "2.17.6"
 }
