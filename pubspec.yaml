@@ -11,11 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite: ^2.0.3+1
-  sqflite_common: ^2.2.1+1
-  collection: ^1.15.0-nullsafety.4
-
-  cupertino_icons: ^1.0.2
+  sqflite_common_ffi:
+  collection:
 
 dev_dependencies:
   flutter_test:

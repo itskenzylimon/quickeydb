@@ -6,10 +6,13 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'package:sqflite/sqflite.dart' as sqflite;
+// import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:quickeydb/configs/data_access_object.dart';
 import 'package:quickeydb/configs/migration.dart';
-import 'package:sqflite/sqlite_api.dart';
+// import 'package:sqflite/sqlite_api.dart';
+
+import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 export 'configs/converter.dart';
 export 'configs/data_access_object.dart';
@@ -49,11 +52,11 @@ abstract class QuickeyDB {
 
 
     final databasePath = persist! == false
-        ? sqflite.inMemoryDatabasePath
-        : '${dbPath ?? await sqflite.getDatabasesPath()}/$dbName.db';
+        ? inMemoryDatabasePath
+        : '${dbPath ?? await databaseFactoryFfi.getDatabasesPath()}/$dbName.db';
 
     if (importDB) {
-      final isExists = await sqflite.databaseExists(databasePath);
+      final isExists = await databaseFactoryFfi.databaseExists(databasePath);
 
       if (!isExists) {
         // Should happen only the first time you launch your application
@@ -86,30 +89,32 @@ abstract class QuickeyDB {
     return _getInstance = QuickeyDBImpl(
       logger: debugging,
       dataAccessObjects: { for (var dao in dataAccessObjects!) dao.runtimeType : dao },
-      database: await sqflite.openDatabase(
+      database: await databaseFactoryFfi.openDatabase(
         databasePath,
-        version: dbVersion,
-        onCreate: (Database? database, _) async {
-          await Future.forEach(
-              dataAccessObjects.map((dao) => dao.schema.sql), database!.execute);
-        },
-        onUpgrade: (sqflite.Database database, int from, int to) async {
-          if (debugging) {
-            if (kDebugMode) {
-              print('Upgrading from $from to $to');
-          
-            }}
-          final migration = Migration(database: database, logger: debugging);
-          await Future.forEach(dataAccessObjects, migration.force);
-        },
-        onDowngrade: (sqflite.Database database, int from, int to) async {
-          if (debugging) {
-            if (kDebugMode) {
-              print('Downgrading from $from to $to');
-            }}
-          final migration = Migration(database: database, logger: debugging);
-          await Future.forEach(dataAccessObjects, migration.force);
-        },
+        options: OpenDatabaseOptions(
+          version: dbVersion,
+          onCreate: (Database? database, _) async {
+            await Future.forEach(
+                dataAccessObjects.map((dao) => dao.schema.sql), database!.execute);
+          },
+          onUpgrade: (Database database, int from, int to) async {
+            if (debugging) {
+              if (kDebugMode) {
+                print('Upgrading from $from to $to');
+
+              }}
+            final migration = Migration(database: database, logger: debugging);
+            await Future.forEach(dataAccessObjects, migration.force);
+          },
+          onDowngrade: (Database database, int from, int to) async {
+            if (debugging) {
+              if (kDebugMode) {
+                print('Downgrading from $from to $to');
+              }}
+            final migration = Migration(database: database, logger: debugging);
+            await Future.forEach(dataAccessObjects, migration.force);
+          }
+        )
       ),
     );
   }

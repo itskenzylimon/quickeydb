@@ -8,7 +8,7 @@ class QuickeyDBImpl implements QuickeyDB {
   final bool? logger;
 
   // Database instance
-  final sqflite.Database? database;
+  final Database? database;
 
   T? call<T extends DataAccessObject>() => get<T>();
   T? get<T extends DataAccessObject?>() => dataAccessObjects![T] as T?;

@@ -4,12 +4,12 @@ import 'package:quickeydb/quickeydb.dart';
 import 'package:quickeydb/extension/core_extension.dart';
 import 'package:quickeydb/builder/quickey_Builder.dart';
 import 'package:quickeydb/builder/data_method.dart';
-import 'package:sqflite/sqflite.dart' show Database;
 import 'package:quickeydb/builder/query_method.dart';
 import 'package:quickeydb/configs/logger.dart';
 import 'package:quickeydb/controls/relation.dart';
 import 'package:quickeydb/types/schema.dart';
 import 'package:sqflite_common/src/sql_builder.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 
 class DataAccessObject<T> implements QueryMethod<T?>, DataMethods<T?> {
   final Schema schema;
@@ -312,13 +312,13 @@ Future<T?> findBy(Map<String, dynamic> args) async {
 }
 
 @override
-Future<T> get first async {
-  return limit(1).toList().then((value) => value.firstOrNull!);
+Future<T?> get first async {
+  return limit(1).toList().then((value) => value.firstOrNull);
 }
 
 @override
-Future<T> get last async {
-  return toList().then((value) => value.lastOrNull!);
+Future<T?> get last async {
+  return toList().then((value) => value.lastOrNull);
 }
 
 @override

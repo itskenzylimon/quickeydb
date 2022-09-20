@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 import 'package:quickeydb/quickeydb.dart';
 import '../types/schema.dart';
 import 'logger.dart';

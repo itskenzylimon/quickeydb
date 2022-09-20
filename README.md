@@ -1,3 +1,12 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/logo/QuickeyDBV1.png"/>
+</p>
+
+<h1 align="center">Quickey Database</h1>
+<h3 align="center">FAST Object-Relational Mapping SQLite wrapper.</h3>
+
+
+
 [QuickeyDB](https://github.com/itskenzylimon/quickeydb) is a simple ORM inspired from [ActiveRecord](https://github.com/rails/rails/tree/master/activerecord), built on-top of [Sqflite](https://pub.dev/packages/sqflite).
 
 QuickeyDB Object-Relational Mapping (ORM) uses a coding technique with function descriptors connected to a relational database.
@@ -9,6 +18,17 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
 * You get to write better queries in a Dart, Most developers are not the best at writing SQL statements.
 * Lastly, QuickeyDB has incredibly lower code lines compared to embedded SQL Queries.
 
+## Platforms
+
+| Platform 	| Supported? 	               |
+|----------	|----------------------------|
+| Web      	| ❎ Coming Soon        	     |
+| MacOS    	| ✅ Tried & Tested         	 |
+| Windows  	| ✅ Tried         	               |
+| Linux    	| ✅ Tried & Tested         	      |
+| Android  	| ✅ Tried & Tested         	      |
+| iOS      	| ✅ Tried & Tested         	      |
+
 
 1. [Introduction to QuickeyDB](#introduction-to-quickeydb)
 2. [Getting Started with QuickeyDB](#getting-started-with-quickeydb)
@@ -19,15 +39,15 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
    5. [Simple Example](#5-simple-example)
 3. [Data Access Objects](#data-access-objects)
     1. [Building Queries](#building-queries)
-    1. [Finder Queries](#finder-queries)
-    1. [Data Persistence](#data-persistence)
-    1. [Calculations Methods](#calculations-methods)
-    1. [Helper Methods](#helper-methods)
-    1. [Custom SQL Queries](#custom-sql-queries)
+    2. [Finder Queries](#finder-queries)
+    3. [Data Persistence](#data-persistence)
+    4. [Calculations Methods](#calculations-methods)
+    5. [Helper Methods](#helper-methods)
+    6. [Custom SQL Queries](#custom-sql-queries)
 4. [Data Tables Relations](#data-tables-relations)
-    1. [Belongs To](#belongs-to)
-    1. [Has One](#has-one)
-    1. [Has Many](#has-many)
+   1. [Belongs To](#belongs-to)
+   2. [Has One](#has-one)
+   3. [Has Many](#has-many)
 5. [Database Migration](#database-migration)
 6. [Import Local Database](#import-local-databases)
 7. [Persist Data Storage](#persist-data-storage)
@@ -660,13 +680,40 @@ Note: By default `logger` is _enabled_ while you're in debugging mode, if you wa
 
 Feature requests and bugs at the [issue tracker](https://github.com/itskenzylimon/quickeydb/issues).
 
-# Contributing
-- Fork the repo on [GitHub](https://github.com/itskenzylimon/quickeydb)
-- Clone the project
-- Commit changes with a well explained details
-- Push your work back up to your fork
-- Submit a Pull request so that we can review / merge your changes
+## Contributing
 
+Quickey Database ORM is an open source project, and thus contributions to this project are welcome - please feel free to [create a new issue](https://github.com/itskenzylimon/quickeydb/issues/new/choose) if you encounter any problems, or [submit a pull request](https://github.com/itskenzylimon/quickeydb/pulls). For community contribution guidelines, please review the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+If submitting a pull request, please ensure the following standards are met:
+
+1) Code files must be well formatted (run `flutter format .`).
+
+2) Tests must pass (run `flutter test`).  New test cases to validate your changes are highly recommended.
+
+3) Implementations must not add any project dependencies.
+
+4) Project must contain zero warnings. Running `flutter analyze` must return zero issues.
+
+5) Ensure docstrings are kept up-to-date. New feature additions must include docstrings.
+
+
+
+
+## Additional information
+
+This package has **TWO CORE** dependencies including core SQLite Packages.
+```dart
+1. sqflite_common_ffi
+2. collection
+```
+
+Developed by:
+
+© 2022 [Kenzy Limon](https://www.kenzylimon.com)
 # Articles and videos
 
 [Flutter Quickey Database ORM](https://medium.com/@itskenzylimon/flutter-quickey-database-orm-e1d4208f903a) - Medium Article
+
+## Found this project useful? ❤️
+
+If you found this project useful, then please consider giving it a ⭐️ on Github and sharing it with your friends via social media.
