@@ -3,7 +3,7 @@ description: A new Flutter SQLite Wrapper.
 
 homepage: https://github.com/itskenzylimon/quickey
 
-version: 1.0.0+1
+version: 1.0.2+2
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
