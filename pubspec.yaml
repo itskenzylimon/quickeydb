@@ -11,8 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite_common_ffi:
-  collection:
+  sqflite_common_ffi: 2.1.1+1
+  collection: 1.16.0
 
 dev_dependencies:
   flutter_test:
