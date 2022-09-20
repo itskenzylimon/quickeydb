@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickeydb/quickeydb.dart';
+// This line is needed for windows apps
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'Database/Models/task.dart';
 import 'Database/Models/user.dart';
@@ -9,7 +11,18 @@ import 'Database/schema.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await QuickeyDB.initialize(
+  /**
+   * For windows uncomment the following
+   */
+  // sqfliteFfiInit();
+
+  /**
+   * For Linux do a onetime setup by running the following
+   */
+  // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
+
+
+      await QuickeyDB.initialize(
     persist: false,
     dbVersion: 1,
     dataAccessObjects: [

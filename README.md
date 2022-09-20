@@ -24,7 +24,7 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
 |----------	|----------------------------|
 | Web      	| ❎ Coming Soon        	     |
 | MacOS    	| ✅ Tried & Tested         	 |
-| Windows  	| ✅ Tried         	               |
+| Windows  	| ✅ Tried & Tested         	               |
 | Linux    	| ✅ Tried & Tested         	      |
 | Android  	| ✅ Tried & Tested         	      |
 | iOS      	| ✅ Tried & Tested         	      |
