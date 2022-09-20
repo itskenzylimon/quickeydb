@@ -13,12 +13,6 @@ pubspec.lock
 /doc/api/
 
 # flutter root folder wrongly created
-/ios
-/android
-/web
-/linux
-/windows
-/macos
 .symlinks
 
 # IDE

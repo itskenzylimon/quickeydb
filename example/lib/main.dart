@@ -22,7 +22,7 @@ void main() async {
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
 
-      await QuickeyDB.initialize(
+  await QuickeyDB.initialize(
     persist: false,
     dbVersion: 1,
     dataAccessObjects: [
@@ -89,6 +89,13 @@ void main() async {
   /**
    * [isExist]
    */
+
+  QuickeyDB.getInstance!.database!.transaction((txn) async {
+
+
+    
+  });
+
   QuickeyDB.getInstance!<UserSchema>()!.isExists({'name': 'John Doe'});
 
   /**
