@@ -49,13 +49,15 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
    2. [Has One](#has-one)
    3. [Has Many](#has-many)
 5. [Database Migration](#database-migration)
-6. [Import Local Database](#import-local-databases)
-7. [Persist Data Storage](#persist-data-storage)
-8. [Cool Color Logger](#cool-color-logger)
-9. [Taskan Crud Example](#taskan-crud-example)
-10. [Features Request & Bug Reports](#features-request-&-bug-reports)
-11. [Contributing](#contributing)
-12. [Articles and videos](#articles-and-videos)
+6. [Transaction](#transaction)
+7. [Batch support](#batch_support)
+8. [Import Local Database](#import-local-databases)
+9. [Persist Data Storage](#persist-data-storage)
+10. [Cool Color Logger](#cool-color-logger)
+11. [Taskan Crud Example](#taskan-crud-example)
+12. [Features Request & Bug Reports](#features-request-&-bug-reports)
+13. [Contributing](#contributing)
+14. [Articles and videos](#articles-and-videos)
 
 # Introduction to QuickeyDB:
 
@@ -660,6 +662,78 @@ class UserSchema extends DataAccessObject<User> {
 _Please Note That :: **Never** add `NOT NULL` columns while migrating unless you pass `DEFAULT` value._
 
 
+# Transaction
+
+Calls in Transaction must only be done using the transaction object (`txn`), avoid using the `database` or `QuickeyDB.getInstance` inside transaction as this will trigger a databased dead-lock.
+
+Keep in mind that the callbacks `onCreate` `onUpgrade` `onDowngrade` are already internally wrapped in a transaction, so there is no need to wrap your statements within those callbacks.
+
+```dart
+
+await QuickeyDB.getInstance!.database!.transaction((txn) async {
+
+txn.insert('users', { mapped data }, conflictAlgorithm: ConflictAlgorithm.replace);
+txn.delete('users', where: 'id = ?', whereArgs: [id]);
+txn.update('users', { mapped data });
+
+txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
+txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
+txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
+txn.rawQuery('SELECT COUNT(*) FROM users');
+
+await txn.execute('CREATE TABLE task_types (id INTEGER PRIMARY KEY)');
+
+});
+
+```
+
+# Batch support
+
+```dart
+
+var batch = QuickeyDB.getInstance!.database!.batch();
+batch.insert('users', {'name': 'Kenzy'});
+batch.update('users', {'name': 'Kenzy Limon'}, where: 'name = ?', whereArgs: ['Kenzy']);
+batch.delete('users', where: 'name = ?', whereArgs: ['Kenzy']);
+var results = await batch.commit();
+
+```
+
+Getting the result for each operation has a cost (id for insertion and number of changes for update and delete). 
+
+On Android where an extra SQL request is executed. If you don't care about the result and worry about performance in big batches, you can use
+
+```dart
+await batch.commit(noResult: true);
+```
+
+Note during a transaction, the batch won't be committed until the transaction is committed
+
+```dart
+
+await database.transaction((txn) async {
+  
+var batch = txn.batch();
+
+// ...
+
+await batch.commit();
+
+});
+
+```
+
+The actual commit will happen when the transaction is committed. 
+
+By default, a batch stops as soon as it encounters an error (which typically reverts the uncommitted changes)
+to change this action, you have to set `continueOnError` to `false`
+
+```dart
+await batch.commit(continueOnError: true);
+```
+
+
+
 # Cool Color Logger
 
 Note: By default `logger` is _enabled_ while you're in debugging mode, if you want to disable it just set `debugging` property to `false`.
@@ -671,6 +745,32 @@ Note: By default `logger` is _enabled_ while you're in debugging mode, if you wa
   );
 
 ```
+
+
+# Supported Data types
+
+`DateTime` is not a supported SQLite type. Personally I store them as
+int (millisSinceEpoch) or string (iso8601)
+
+`bool` is not a supported SQLite type. Use `INTEGER` and 0 and 1 values.
+
+### INTEGER
+
+* Dart type: `int`
+* Supported values: from -2^63 to 2^63 - 1
+
+### REAL
+
+* Dart type: `num`
+
+### TEXT
+
+* Dart type: `String`
+
+### BLOB
+
+* Dart type: `Uint8List`
+
 
 # Taskan Crud Example
 

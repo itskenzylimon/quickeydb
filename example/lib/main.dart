@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickeydb/quickeydb.dart';
+export 'package:sqflite_common/sql.dart' show ConflictAlgorithm;
 // This line is needed for windows apps
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'Database/Models/task.dart';
 import 'Database/Models/user.dart';
 import 'Database/schema.dart';
+import 'main.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,13 +89,47 @@ void main() async {
   // print(await QuickeyDB.getInstance!<UserSchema>()?.count());
 
   /**
-   * [isExist]
+   * [Transaction]
    */
 
-  QuickeyDB.getInstance!.database!.transaction((txn) async {
+  // QuickeyDB.getInstance!.database!.transaction((txn) async {
+  //
+  //   txn.insert('users', { mapped data }, conflictAlgorithm: ConflictAlgorithm.replace);
+  //   txn.delete('users', where: 'id = ?', whereArgs: [id]);
+  //   txn.update('users', { mapped data });
+  //
+  //   txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
+  //   txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
+  //   txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
+  //   txn.rawQuery('SELECT COUNT(*) FROM users');
+  //
+  //   await txn.execute('CREATE TABLE task_types (id INTEGER PRIMARY KEY)');
+  //
+  // });
 
+  /**
+   * [Batch]
+   */
+  // var batch = QuickeyDB.getInstance!.database!.batch();
+  // batch.insert('users', {'name': 'Kenzy'});
+  // batch.update('users', {'name': 'Kenzy Limon'}, where: 'name = ?', whereArgs: ['Kenzy']);
+  // batch.delete('users', where: 'name = ?', whereArgs: ['Kenzy']);
+  // var results = await batch.commit();
 
-    
+  /**
+   * [Batch with Transactions]
+   */
+
+  await QuickeyDB.getInstance!.database!.transaction((txn) async {
+    var batch = txn.batch();
+
+    // ...
+
+    // the actual commit will happen when the transaction is committed
+    // however the data is available in this transaction
+    await batch.commit();
+
+    //  ...
   });
 
   QuickeyDB.getInstance!<UserSchema>()!.isExists({'name': 'John Doe'});
