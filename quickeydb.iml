@@ -12,6 +12,20 @@
       <excludeFolder url="file://$MODULE_DIR$/pos/build" />
       <excludeFolder url="file://$MODULE_DIR$/pos/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/pos/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/7.4/vcsMetadata" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/Pods/Headers" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/example/macos/Pods/Headers" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/macos/Flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/Runner.xcodeproj/project.xcworkspace" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/Runner.xcworkspace" />
+      <excludeFolder url="file://$MODULE_DIR$/example/macos/Runner.xcodeproj/project.xcworkspace" />
+      <excludeFolder url="file://$MODULE_DIR$/example/macos/Runner.xcworkspace" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/Runner.xcodeproj" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/Runner.xcworkspace" />
+      <excludeFolder url="file://$MODULE_DIR$/macos/Runner.xcodeproj/project.xcworkspace" />
+      <excludeFolder url="file://$MODULE_DIR$/macos/Runner.xcworkspace" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
