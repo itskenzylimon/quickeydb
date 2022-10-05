@@ -8,6 +8,7 @@ import 'package:quickeydb/builder/query_method.dart';
 import 'package:quickeydb/configs/logger.dart';
 import 'package:quickeydb/controls/relation.dart';
 import 'package:quickeydb/types/schema.dart';
+// ignore: implementation_imports
 import 'package:sqflite_common/src/sql_builder.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 
