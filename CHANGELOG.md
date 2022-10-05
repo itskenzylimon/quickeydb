@@ -1,4 +1,9 @@
-## [1.0.3+33]
+## [1.0.4+4]
+- Find method now accepts both int and String
+- Order by accepts a type with `DESC` OR `ASC`
+- Cleared warnings and improve package points ratings.
+
+## [1.0.3+3]
 - Database `Transaction` - Documentation / Examples
 - Database `Batch` - Documentation / Examples
 - Updated example project
