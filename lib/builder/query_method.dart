@@ -65,5 +65,5 @@ abstract class QueryMethod<T>
   /**
    * [order] method
    */
-  QueryMethod<T> order(List<String> args);
+  QueryMethod<T> order(List<String> args, String type);
 }

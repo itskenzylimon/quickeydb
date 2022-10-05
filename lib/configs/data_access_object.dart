@@ -192,11 +192,15 @@ QueryMethod<T?> having(String opts) {
   return this.._having.add(opts);
 }
 
+/// The order command is used to sort the data returned in ascending order.
+/// SELECT * FROM tasks ORDER BY name ASC;
+
 @override
-QueryMethod<T?> order(List<String> columns) {
+QueryMethod<T?> order(List<String> columns, String type) {
+  type = [null, ''].contains(type) ? 'ASC' : type;
   return this
     .._order.addAll(columns
-        .map((item) => item.split(' ').length > 1 ? item : '$item ASC'));
+        .map((item) => item.split(' ').length > 1 ? item : '$item $type'));
 }
 
 @override
@@ -302,7 +306,7 @@ Future<bool> isExists(Map<String, dynamic> args) async {
 }
 
 @override
-Future<T?> find(int id) async {
+Future<T?> find(var id) async {
   return where({schema.primaryKey: id}).first;
 }
 
