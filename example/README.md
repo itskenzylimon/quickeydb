@@ -1,6 +1,6 @@
-# taskan
+# example
 
-A new Flutter project.
+Flutter quickeydb example project.
 
 ## Getting Started
 

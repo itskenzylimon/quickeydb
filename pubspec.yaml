@@ -3,7 +3,7 @@ description: QuickeyDB is a simple ORM inspired from ActiveRecord, built on-top 
 
 homepage: https://github.com/itskenzylimon/quickey
 
-version: 1.0.4+4
+version: 1.0.5+5
 
 environment:
   sdk: ">=2.17.6 <3.0.0"

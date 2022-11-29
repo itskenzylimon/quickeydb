@@ -1,7 +1,7 @@
 import 'user.dart';
 
 class Task {
-  int? id;
+  String? id;
   String name;
   String body;
   int? level;

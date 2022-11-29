@@ -14,7 +14,7 @@ abstract class ReaderMethod<T> {
   /**
    * [find] gets an entry based by id
    */
-  Future<T> find(int id);
+  Future<T> find(var id);
 
   /**
    * [first] gets the first entry on database

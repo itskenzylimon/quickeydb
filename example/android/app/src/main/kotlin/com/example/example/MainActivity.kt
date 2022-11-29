@@ -1,4 +1,4 @@
-package com.taskan.taskan
+package com.example.example
 
 import io.flutter.embedding.android.FlutterActivity
 

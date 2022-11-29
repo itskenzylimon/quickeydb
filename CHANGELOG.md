@@ -1,3 +1,7 @@
+## [1.0.5+5]
+- Fixed an [issue #1](https://github.com/itskenzylimon/quickeydb/issues/1) where `find()` and `findBy({'id' : 'VALUE'})` method expected an int primary id.
+- Improved documentation on Database relationship.
+- Minor improvements.
 ## [1.0.4+4]
 - Find method now accepts both int and String
 - Order by accepts a type with `DESC` OR `ASC`

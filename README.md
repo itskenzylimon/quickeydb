@@ -378,7 +378,23 @@ QuickeyDB.getInstance!<UserSchema>()!.delete(user);
 QuickeyDB.getInstance!<UserSchema>()!.destroy(1); // (truncate)
 ```
 
+# Database Relationships
+QuickeyDB has out of box support for relationships, we treasure them and they only
+work when you define the relationships on your models.
+
+After defining the relationships. QuickeyDB will do all the heavy lifting of constructing the underlying SQL queries.
+
 ## One to one
+One to One creates a one-to-one relationship between two models.
+
+For example, A user has a profile. The has one relationship needs a foreign key in the related table.
+### Defining relationship on the model
+Once you have created the schema with the required columns,
+you will also have to define the relationship on your schema.
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/logo/One-To-One.png"/>
+</p>
 
 ```dart
 // INSERT INTO user (id, name, age,...) VALUES (NULL, 'Jane Doe', 25,...);
@@ -394,6 +410,19 @@ user: User(
 ```
 
 ## One to many
+HasMany creates a one-to-many relationship between two models. For example, A user has many posts. 
+
+The relationship needs a foreign key in the related table.
+
+Following is an example table structure for the one-to-many relationship. 
+The tasks.user_id is the foreign key and forms the relationship with the user.id column.
+
+### Defining relationship on the model
+Once you have created the tables with the required columns, you will also have to define the relationship on your schema.
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/logo/One-To-Many.png"/>
+</p>
 
 ```dart
 // INSERT INTO user (id, name, age) VALUES (NULL, 'John Doe', 10);

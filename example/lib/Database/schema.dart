@@ -7,7 +7,7 @@ class UserSchema extends DataAccessObject<User> {
       : super(
           '''
           CREATE TABLE user (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            id TEXT NOT NULL PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
             phone TEXT,
@@ -42,7 +42,7 @@ class TaskSchema extends DataAccessObject<Task> {
       : super(
           '''
           CREATE TABLE tasks (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            id TEXT NOT NULL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             body TEXT,

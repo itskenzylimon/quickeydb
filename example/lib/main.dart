@@ -26,7 +26,7 @@ void main() async {
 
   await QuickeyDB.initialize(
     persist: false,
-    dbVersion: 1,
+    dbVersion: 2,
     dataAccessObjects: [
       UserSchema(),
       TaskSchema(),
@@ -137,7 +137,12 @@ void main() async {
   /**
    * [limit]
    */
-  QuickeyDB.getInstance!<UserSchema>()!.find(1);
+  QuickeyDB.getInstance!<UserSchema>()!.limit(1);
+
+  /**
+   * [find]
+   */
+  QuickeyDB.getInstance!<UserSchema>()!.find('1');
 
   /**
    * [findBy]
@@ -162,12 +167,13 @@ void main() async {
   /**
    * [has-one] relation
   //  */
-  // await QuickeyDB.getInstance!<UserTable>()?.create(
+  // await QuickeyDB.getInstance!<UserSchema>()?.create(
   //   User(
+  //       // id: 'cytdutrsyerawq',
   //       name: 'John Doe',
   //       email: 'johndoe@gmail.com',
   //       phone: '+254 712345678',
-  //       task: Task(name: 'Create Package', body: 'Create a Flutter DB Package')
+  //       task: Task(name: 'Create Package', body: 'Create a Flutter DB Package', level: 100), age: 0
   //   ),
   // );
 
@@ -619,10 +625,12 @@ class _ExampleAppState extends State<ExampleApp> {
   Future<void> saveEntry() async {
     await QuickeyDB.getInstance!<UserSchema>()?.create(
       User(
+          id: 'ergergerh',
           name: userName.text,
           email: userEmail.text,
           phone: userPhone.text,
           task: Task(
+              id: 'wergwrtgerth',
               name: taskName.text,
               body: taskBody.text,
               level: int.parse(taskLevel.text)),
