@@ -8,7 +8,6 @@ export 'package:sqflite_common/sql.dart' show ConflictAlgorithm;
 import 'Database/Models/task.dart';
 import 'Database/Models/user.dart';
 import 'Database/schema.dart';
-import 'main.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +25,7 @@ void main() async {
 
   await QuickeyDB.initialize(
     persist: false,
-    dbVersion: 2,
+    dbVersion: 1,
     dataAccessObjects: [
       UserSchema(),
       TaskSchema(),
@@ -120,62 +119,62 @@ void main() async {
    * [Batch with Transactions]
    */
 
-  await QuickeyDB.getInstance!.database!.transaction((txn) async {
-    var batch = txn.batch();
-
-    // ...
-
-    // the actual commit will happen when the transaction is committed
-    // however the data is available in this transaction
-    await batch.commit();
-
-    //  ...
-  });
-
-  QuickeyDB.getInstance!<UserSchema>()!.isExists({'name': 'John Doe'});
+  // await QuickeyDB.getInstance!.database!.transaction((txn) async {
+  //   var batch = txn.batch();
+  //
+  //   // ...
+  //
+  //   // the actual commit will happen when the transaction is committed
+  //   // however the data is available in this transaction
+  //   await batch.commit();
+  //
+  //   //  ...
+  // });
 
   /**
    * [limit]
    */
-  QuickeyDB.getInstance!<UserSchema>()!.limit(1);
+  // QuickeyDB.getInstance!<UserSchema>()!.limit(1);
 
   /**
    * [find]
    */
-  QuickeyDB.getInstance!<UserSchema>()!.find('1');
+  // QuickeyDB.getInstance!<UserSchema>()!.find('1');
 
   /**
    * [findBy]
    */
-  QuickeyDB.getInstance!<UserSchema>()!.findBy({'name': 'Jane Doe'});
+  // QuickeyDB.getInstance!<UserSchema>()!.findBy({'name': 'Jane Doe'});
 
   /**
    * [first]
    */
-  QuickeyDB.getInstance!<UserSchema>()!.first;
+  // QuickeyDB.getInstance!<UserSchema>()!.first;
 
   /**
    * [last]
    */
-  QuickeyDB.getInstance!<UserSchema>()!.last;
+  // QuickeyDB.getInstance!<UserSchema>()!.last;
 
   /**
    * [take] limit to 10
    */
-  QuickeyDB.getInstance!<UserSchema>()!.take(10);
+  // QuickeyDB.getInstance!<UserSchema>()!.take(10);
 
   /**
    * [has-one] relation
   //  */
-  // await QuickeyDB.getInstance!<UserSchema>()?.create(
-  //   User(
-  //       // id: 'cytdutrsyerawq',
-  //       name: 'John Doe',
-  //       email: 'johndoe@gmail.com',
-  //       phone: '+254 712345678',
-  //       task: Task(name: 'Create Package', body: 'Create a Flutter DB Package', level: 100), age: 0
-  //   ),
-  // );
+  await QuickeyDB.getInstance!<UserSchema>()?.create(
+    User(
+        id: 'cytdutrsyerawq',
+        name: 'John Doe',
+        email: 'johndoe@gmail.com',
+        phone: '+254 712345678',
+        task: Task(
+            id: 'hjjhvjhvjh',
+            name: 'Create Package', body: 'Create a Flutter DB Package', level: 120), age: 80
+    ),
+  );
 
   /**
    * [has-many] relation
@@ -191,6 +190,8 @@ void main() async {
   //             ),
   //   ),
   // );
+
+  print( await QuickeyDB.getInstance!<TaskSchema>()!.find('hjjhvjhvjh'));
 
   /**
    * [destroy-all]
@@ -623,19 +624,25 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Future<void> saveEntry() async {
-    await QuickeyDB.getInstance!<UserSchema>()?.create(
-      User(
-          id: 'ergergerh',
-          name: userName.text,
-          email: userEmail.text,
-          phone: userPhone.text,
-          task: Task(
-              id: 'wergwrtgerth',
-              name: taskName.text,
-              body: taskBody.text,
-              level: int.parse(taskLevel.text)),
-          age: int.parse(userAge.text)),
-    );
+
+    try{
+      await QuickeyDB.getInstance!<UserSchema>()?.create(
+        User(
+            // id: DateTime.now().microsecondsSinceEpoch.toString(),
+            name: userName.text,
+            email: userEmail.text,
+            phone: userPhone.text,
+            task: Task(
+                // id: DateTime.now().microsecondsSinceEpoch.toString(),
+                name: taskName.text,
+                body: taskBody.text,
+                level: int.parse(taskLevel.text)),
+                age: int.parse(userAge.text)),
+      );
+    } catch (error){
+      print(error);
+    }
+
     /**
      * Clear fields and refresh Page
      */

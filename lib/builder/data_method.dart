@@ -18,7 +18,7 @@ abstract class DataMethods<T> implements QueryableReturn<T> {
   Future<dynamic> insert(Map<String?, dynamic> item);
 
   /**
-   * Method [insert] same as insert but expects a map entry List
+   * Method [insertAll] same as insert but expects a map entry List
    */
   Future insertAll(List<Map<String, dynamic>> items);
 
@@ -27,20 +27,20 @@ abstract class DataMethods<T> implements QueryableReturn<T> {
   /**
    * Method [update] updates entry on database
    */
-  Future<int> update(T item);
+  Future<dynamic> update(T item);
 
   /**
    * Method [delete] deletes entry on database
    */
-  Future<int> delete(T item);
+  Future<dynamic> delete(T item);
 
   /**
    * Method [destroy] deletes entry on database based on id
    */
-  Future<int> destroy(int id);
+  Future<dynamic> destroy(dynamic id);
 
   /**
    * Method [destroyAll] deletes all entries on database
    */
-  Future<int> destroyAll();
+  Future<dynamic> destroyAll();
 }

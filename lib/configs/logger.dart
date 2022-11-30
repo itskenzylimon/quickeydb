@@ -13,7 +13,7 @@ class Logger {
   Logger.query(Type type, Future future, SqlBuilder builder) {
     Logger._start();
     future.whenComplete(() =>
-        _log('\x1B[32m --- ${_elapsed(type)} ${builder.sql} '
+        _log('${_elapsed(type)}\x1B[37m -- ${builder.sql} '
             '[${builder.arguments!.join(', ')}] --- \x1B[0m')
     );
   }
@@ -21,7 +21,7 @@ class Logger {
   Logger.insert(Type type, Future future, SqlBuilder builder) {
     Logger._start();
     future.whenComplete(() =>
-        _log('\x1B[33m --- ${_elapsed(type)} ${builder.sql} '
+        _log('${_elapsed(type)}\x1B[32m -- ${builder.sql} '
             '[${builder.arguments!.join(', ')}] --- \x1B[0m')
     );
   }
@@ -29,7 +29,7 @@ class Logger {
   Logger.update(Type type, Future future, SqlBuilder builder) {
     Logger._start();
     future.whenComplete(() =>
-        _log('\x1B[37m --- ${_elapsed(type)} ${builder.sql} '
+        _log('${_elapsed(type)}\x1B[33m -- ${builder.sql} '
             '[${builder.arguments!.join(', ')}] --- \x1B[0m')
     );
   }
@@ -37,7 +37,7 @@ class Logger {
   Logger.destroy(Type type, Future future, SqlBuilder builder) {
     Logger._start();
     future.whenComplete(() =>
-        _log('\x1B[31m --- ${_elapsed(type)} ${builder.sql} '
+        _log('${_elapsed(type)}\x1B[31m -- ${builder.sql} '
             '[${builder.arguments!.join(', ')}] --- \x1B[0m')
     );
   }
@@ -45,13 +45,13 @@ class Logger {
   Logger.sql(Future future, String sql) {
     Logger._start();
     future.whenComplete(() =>
-        _log('\x1B[36m --- $sql --- \x1B[0m')
+        _log('\x1B[36m -- ${sql.replaceAll('null ', '')} --- \x1B[0m')
     );
   }
 
   _elapsed(dynamic type) {
-    return _log('\x1B[34m --- $type (${_stopwatch.elapsed.inMilliseconds}ms)'
-        ' --- \x1B[0m');
+    return '\x1B[30m$type (${_stopwatch.elapsed.inMilliseconds} ms)'
+        ' \x1B[0m';
   }
 
   _log(body) {

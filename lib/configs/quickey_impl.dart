@@ -13,5 +13,5 @@ class QuickeyDBImpl implements QuickeyDB {
   T? call<T extends DataAccessObject>() => get<T>();
   T? get<T extends DataAccessObject?>() => dataAccessObjects![T] as T?;
 
-  const QuickeyDBImpl({final this.dataAccessObjects, final this.database, final this.logger});
+  const QuickeyDBImpl({this.dataAccessObjects, this.database, this.logger});
 }

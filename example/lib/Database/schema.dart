@@ -43,7 +43,7 @@ class TaskSchema extends DataAccessObject<Task> {
           '''
           CREATE TABLE tasks (
             id TEXT NOT NULL PRIMARY KEY,
-            user_id INTEGER NOT NULL,
+            user_id TEXT NOT NULL,
             name TEXT NOT NULL,
             body TEXT,
             status TEXT,

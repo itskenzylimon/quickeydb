@@ -48,7 +48,7 @@ List<dynamic> get _whereArgs => [..._where.values, ..._or.values].flatten;
 
 /// Relation
 @override
-Future<int> updateAll(Map<String, dynamic> values) async {
+Future<dynamic> updateAll(Map<String, dynamic> values) async {
   final builder = SqlBuilder.update(
     schema.table!,
     values,
@@ -56,7 +56,7 @@ Future<int> updateAll(Map<String, dynamic> values) async {
     whereArgs: _whereArgs,
   );
 
-  final completer = Completer<int>()
+  final completer = Completer<dynamic>()
     ..complete(database!.rawUpdate(builder.sql, builder.arguments));
 
   if (isLogger!) Logger.update(type, completer.future, builder);
@@ -239,7 +239,6 @@ QueryMethod<T?> offset(int value) {
 }
 
 
-// ProxyInclude0<AccountingBookAuditDao, AccountingBookDao, CurrencyDao>(),
 @override
 QueryMethod<T?> includes(List args) {
   _includes
@@ -348,7 +347,7 @@ Future<dynamic> insert(Map<String?, Object?> values) async {
   Future<dynamic> call() async {
     final builder = SqlBuilder.insert(schema.table!, mapValue);
 
-    final completer = Completer<int>()
+    final completer = Completer<dynamic>()
       ..complete(database!.rawInsert(builder.sql, builder.arguments));
     if (isLogger!) Logger.insert(type, completer.future, builder);
 
@@ -505,7 +504,7 @@ Future insertAll(List<Map<String?, dynamic>> items) async {
 }
 
 @override
-Future<int> update(T? item) async {
+Future<dynamic> update(T? item) async {
   final values = converter.decodeTable(item);
   where({schema.primaryKey: values.remove(schema.primaryKey)});
 
@@ -528,7 +527,7 @@ Future<int> update(T? item) async {
     whereArgs: _whereArgs,
   );
 
-  final completer = Completer<int>()
+  final completer = Completer<dynamic>()
     ..complete(database!.rawUpdate(builder.sql, builder.arguments));
 
   if (isLogger!) Logger.update(type, completer.future, builder);
@@ -537,7 +536,7 @@ Future<int> update(T? item) async {
 }
 
 @override
-Future<int> delete(T? item) async {
+Future<dynamic> delete(T? item) async {
   final values = converter.decode(item);
 
   where({schema.primaryKey: values.remove(schema.primaryKey)});
@@ -548,7 +547,7 @@ Future<int> delete(T? item) async {
     whereArgs: _whereArgs,
   );
 
-  final completer = Completer<int>()
+  final completer = Completer<dynamic>()
     ..complete(database!.rawDelete(builder.sql, builder.arguments));
 
   if (isLogger!) Logger.destroy(type, completer.future, builder);
@@ -557,14 +556,14 @@ Future<int> delete(T? item) async {
 }
 
 @override
-Future<int> destroy(int id) async {
+Future<dynamic> destroy(dynamic id) async {
   final builder = SqlBuilder.delete(
     schema.table!,
     where: '${schema.table}.${schema.primaryKey} = ?',
     whereArgs: [id],
   );
 
-  final completer = Completer<int>()
+  final completer = Completer<dynamic>()
     ..complete(database!.rawDelete(builder.sql, builder.arguments));
 
   if (isLogger!) Logger.destroy(type, completer.future, builder);
@@ -576,7 +575,7 @@ Future<int> destroy(int id) async {
 Future<int> destroyAll() async {
   final builder = SqlBuilder.delete(schema.table!, whereArgs: []);
 
-  final completer = Completer<int>()
+  final completer = Completer<dynamic>()
     ..complete(database!.rawDelete(builder.sql, builder.arguments));
 
   if (isLogger!) Logger.destroy(type, completer.future, builder);
