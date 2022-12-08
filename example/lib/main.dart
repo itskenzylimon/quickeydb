@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quickeydb/builder/query_method.dart';
 import 'package:quickeydb/quickeydb.dart';
 export 'package:sqflite_common/sql.dart' show ConflictAlgorithm;
 // This line is needed for windows apps
@@ -169,10 +170,11 @@ void main() async {
         id: 'cytdutrsyerawq',
         name: 'John Doe',
         email: 'johndoe@gmail.com',
-        phone: '+254 712345678',
+        age: 10,
+        phone: '254712345678',
         task: Task(
             id: 'hjjhvjhvjh',
-            name: 'Create Package', body: 'Create a Flutter DB Package', level: 120), age: 80
+            name: 'Create Package', body: 'Create a Flutter DB Package', level: 120)
     ),
   );
 
@@ -191,7 +193,7 @@ void main() async {
   //   ),
   // );
 
-  print( await QuickeyDB.getInstance!<TaskSchema>()!.find('hjjhvjhvjh'));
+  // print( await QuickeyDB.getInstance!<TaskSchema>()!.find('hjjhvjhvjh'));
 
   /**
    * [destroy-all]
@@ -249,6 +251,13 @@ class _ExampleAppState extends State<ExampleApp> {
     // TODO: implement initState
     super.initState();
     initCalculations();
+    searchUser(
+        {
+          'name': 'John Doe',
+          'age': 10,
+          'phone': '254712345678',
+          'email': 'johndoe@gmail.com'
+        });
   }
 
   Future<void> initCalculations() async {
@@ -628,19 +637,19 @@ class _ExampleAppState extends State<ExampleApp> {
     try{
       await QuickeyDB.getInstance!<UserSchema>()?.create(
         User(
-            // id: DateTime.now().microsecondsSinceEpoch.toString(),
+            id: DateTime.now().microsecondsSinceEpoch.toString(),
             name: userName.text,
             email: userEmail.text,
             phone: userPhone.text,
             task: Task(
-                // id: DateTime.now().microsecondsSinceEpoch.toString(),
+                id: DateTime.now().microsecondsSinceEpoch.toString(),
                 name: taskName.text,
                 body: taskBody.text,
                 level: int.parse(taskLevel.text)),
                 age: int.parse(userAge.text)),
       );
     } catch (error){
-      print(error);
+      // print(error);
     }
 
     /**
@@ -724,4 +733,50 @@ class _ExampleAppState extends State<ExampleApp> {
     // print('{{{{{average}}}}}');
     setState(() {});
   }
+
+
+  /**
+   * We can contruct a query based on subquery that return a QueryMethod.
+   * This is usefull when you intend to reuse queries
+   */
+  Future<List<User?>?> searchUser(Map searchMap) async {
+    QueryMethod<User?>? queryMethodUser =  QuickeyDB.getInstance!<UserSchema>()!
+        .where({'name': searchMap['name']});
+    searchMap.forEach((key, value) {
+      switch(key) {
+        case 'email': {
+          // search email
+          queryMethodUser =  emailQuery(queryMethodUser, searchMap['email']);
+        }
+        break;
+        case 'phone': {
+          // search name
+          queryMethodUser =  phoneQuery(queryMethodUser, searchMap['phone']);
+        }
+        break;
+        default: {
+          // search age
+          queryMethodUser =  ageQueryGreaterThan(queryMethodUser, searchMap['age']);
+        }
+        break;
+      }
+    });
+    return await queryMethodUser?.toList();
+  }
+
+  /** Here we have a subQuery for phoneQuery **/
+  QueryMethod<User?>? phoneQuery(QueryMethod<User?>? queryMethod, String phone) {
+    return queryMethod?.where({'phone': phone});
+  }
+
+  /** Here we have a subQuery for emailQuery **/
+  QueryMethod<User?>? emailQuery(QueryMethod<User?>? queryMethod, String email) {
+    return queryMethod?.where({'email': email});
+  }
+
+  /** Here we have a subQuery for ageQueryGreaterThan **/
+  QueryMethod<User?>? ageQueryGreaterThan(QueryMethod<User?>? queryMethod, int age) {
+    return queryMethod?.where({'age > ?': age});
+  }
+
 }
