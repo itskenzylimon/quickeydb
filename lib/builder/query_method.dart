@@ -4,9 +4,12 @@ import 'package:quickeydb/builder/read_method.dart';
 import 'package:quickeydb/builder/return_method.dart';
 import 'relation_method.dart';
 
-
 abstract class QueryMethod<T>
-    implements RelationMethod<T>, ReaderMethod<T>, CalculationMethod<T>, QueryableReturn<T> {
+    implements
+        RelationMethod<T>,
+        ReaderMethod<T>,
+        CalculationMethod<T>,
+        QueryableReturn<T> {
   /**
    * [select] method
    */

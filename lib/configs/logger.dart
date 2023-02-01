@@ -12,41 +12,36 @@ class Logger {
 
   Logger.query(Type type, Future future, SqlBuilder builder) {
     Logger._start();
-    future.whenComplete(() =>
-        _log('${_elapsed(type)}\x1B[37m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m')
-    );
+    future
+        .whenComplete(() => _log('${_elapsed(type)}\x1B[37m -- ${builder.sql} '
+            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
   }
 
   Logger.insert(Type type, Future future, SqlBuilder builder) {
     Logger._start();
-    future.whenComplete(() =>
-        _log('${_elapsed(type)}\x1B[32m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m')
-    );
+    future
+        .whenComplete(() => _log('${_elapsed(type)}\x1B[32m -- ${builder.sql} '
+            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
   }
 
   Logger.update(Type type, Future future, SqlBuilder builder) {
     Logger._start();
-    future.whenComplete(() =>
-        _log('${_elapsed(type)}\x1B[33m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m')
-    );
+    future
+        .whenComplete(() => _log('${_elapsed(type)}\x1B[33m -- ${builder.sql} '
+            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
   }
 
   Logger.destroy(Type type, Future future, SqlBuilder builder) {
     Logger._start();
-    future.whenComplete(() =>
-        _log('${_elapsed(type)}\x1B[31m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m')
-    );
+    future
+        .whenComplete(() => _log('${_elapsed(type)}\x1B[31m -- ${builder.sql} '
+            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
   }
 
   Logger.sql(Future future, String sql) {
     Logger._start();
-    future.whenComplete(() =>
-        _log('\x1B[36m -- ${sql.replaceAll('null ', '')} --- \x1B[0m')
-    );
+    future.whenComplete(
+        () => _log('\x1B[36m -- ${sql.replaceAll('null ', '')} --- \x1B[0m'));
   }
 
   _elapsed(dynamic type) {
@@ -59,5 +54,4 @@ class Logger {
       return debugPrint('\x1B[35m$body\x1B[0m');
     }
   }
-
 }

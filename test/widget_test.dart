@@ -10,28 +10,18 @@ import 'package:flutter_test/flutter_test.dart';
 // import 'package:quickeydb/quickeydb.dart';
 
 void main() {
-
-
   /**
    * ORM Calculations
    */
 
-  test('count', () async {
-  });
-    test('average', () async {
-  });
-    test('ids', () async {
-  });
-    test('maximum', () async {
-  });
-    test('minimum', () async {
-  });
-    test('pick', () async {
-  });
-    test('pluck', () async {
-  });
-    test('sum', () async {
-  });
+  test('count', () async {});
+  test('average', () async {});
+  test('ids', () async {});
+  test('maximum', () async {});
+  test('minimum', () async {});
+  test('pick', () async {});
+  test('pluck', () async {});
+  test('sum', () async {});
 
   /**
    * More Test coming.

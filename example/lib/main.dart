@@ -23,7 +23,6 @@ void main() async {
    */
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
-
   await QuickeyDB.initialize(
     persist: false,
     dbVersion: 1,
@@ -167,14 +166,17 @@ void main() async {
   //  */
   await QuickeyDB.getInstance!<UserSchema>()?.create(
     User(
-        id: 'cytdutrsyerawq',
-        name: 'John Doe',
-        email: 'johndoe@gmail.com',
-        age: 10,
-        phone: '254712345678',
-        task: Task(
-            id: 'hjjhvjhvjh',
-            name: 'Create Package', body: 'Create a Flutter DB Package', level: 120)
+      id: 'cytdutrsyerawq',
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      age: 10,
+      phone: '254712345678',
+      task: Task(
+        id: 'hjjhvjhvjh',
+        name: 'Create Package',
+        body: 'Create a Flutter DB Package',
+        level: 120,
+      ),
     ),
   );
 
@@ -251,13 +253,12 @@ class _ExampleAppState extends State<ExampleApp> {
     // TODO: implement initState
     super.initState();
     initCalculations();
-    searchUser(
-        {
-          'name': 'John Doe',
-          'age': 10,
-          'phone': '254712345678',
-          'email': 'johndoe@gmail.com'
-        });
+    searchUser({
+      'name': 'John Doe',
+      'age': 10,
+      'phone': '254712345678',
+      'email': 'johndoe@gmail.com',
+    });
   }
 
   Future<void> initCalculations() async {
@@ -299,9 +300,10 @@ class _ExampleAppState extends State<ExampleApp> {
                           builder: (BuildContext context) => AlertDialog(
                             title: const Text('Add User Task'),
                             content: SizedBox(
-                            width: width,
-                            height: height,
-                            child: userTaskForm(globalKey)),
+                              width: width,
+                              height: height,
+                              child: userTaskForm(globalKey),
+                            ),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () =>
@@ -633,22 +635,22 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Future<void> saveEntry() async {
-
-    try{
+    try {
       await QuickeyDB.getInstance!<UserSchema>()?.create(
         User(
-            id: DateTime.now().microsecondsSinceEpoch.toString(),
-            name: userName.text,
-            email: userEmail.text,
-            phone: userPhone.text,
-            task: Task(
-                id: DateTime.now().microsecondsSinceEpoch.toString(),
-                name: taskName.text,
-                body: taskBody.text,
-                level: int.parse(taskLevel.text)),
-                age: int.parse(userAge.text)),
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          name: userName.text,
+          email: userEmail.text,
+          phone: userPhone.text,
+          task: Task(
+              id: DateTime.now().microsecondsSinceEpoch.toString(),
+              name: taskName.text,
+              body: taskBody.text,
+              level: int.parse(taskLevel.text)),
+          age: int.parse(userAge.text),
+        ),
       );
-    } catch (error){
+    } catch (error) {
       // print(error);
     }
 
@@ -734,49 +736,52 @@ class _ExampleAppState extends State<ExampleApp> {
     setState(() {});
   }
 
-
-  /**
-   * We can contruct a query based on subquery that return a QueryMethod.
-   * This is usefull when you intend to reuse queries
-   */
+  /// We can contruct a query based on subquery that return a QueryMethod.
+  /// This is usefull when you intend to reuse queries
   Future<List<User?>?> searchUser(Map searchMap) async {
-    QueryMethod<User?>? queryMethodUser =  QuickeyDB.getInstance!<UserSchema>()!
+    QueryMethod<User?>? queryMethodUser = QuickeyDB.getInstance!<UserSchema>()!
         .where({'name': searchMap['name']});
     searchMap.forEach((key, value) {
-      switch(key) {
-        case 'email': {
-          // search email
-          queryMethodUser =  emailQuery(queryMethodUser, searchMap['email']);
-        }
-        break;
-        case 'phone': {
-          // search name
-          queryMethodUser =  phoneQuery(queryMethodUser, searchMap['phone']);
-        }
-        break;
-        default: {
-          // search age
-          queryMethodUser =  ageQueryGreaterThan(queryMethodUser, searchMap['age']);
-        }
-        break;
+      switch (key) {
+        case 'email':
+          {
+            // search email
+            queryMethodUser = emailQuery(queryMethodUser, searchMap['email']);
+          }
+          break;
+        case 'phone':
+          {
+            // search name
+            queryMethodUser = phoneQuery(queryMethodUser, searchMap['phone']);
+          }
+          break;
+        default:
+          {
+            // search age
+            queryMethodUser =
+                ageQueryGreaterThan(queryMethodUser, searchMap['age']);
+          }
+          break;
       }
     });
     return await queryMethodUser?.toList();
   }
 
-  /** Here we have a subQuery for phoneQuery **/
-  QueryMethod<User?>? phoneQuery(QueryMethod<User?>? queryMethod, String phone) {
+  /// Here we have a subQuery for phoneQuery *
+  QueryMethod<User?>? phoneQuery(
+      QueryMethod<User?>? queryMethod, String phone) {
     return queryMethod?.where({'phone': phone});
   }
 
-  /** Here we have a subQuery for emailQuery **/
-  QueryMethod<User?>? emailQuery(QueryMethod<User?>? queryMethod, String email) {
+  /// Here we have a subQuery for emailQuery *
+  QueryMethod<User?>? emailQuery(
+      QueryMethod<User?>? queryMethod, String email) {
     return queryMethod?.where({'email': email});
   }
 
-  /** Here we have a subQuery for ageQueryGreaterThan **/
-  QueryMethod<User?>? ageQueryGreaterThan(QueryMethod<User?>? queryMethod, int age) {
+  /// Here we have a subQuery for ageQueryGreaterThan *
+  QueryMethod<User?>? ageQueryGreaterThan(
+      QueryMethod<User?>? queryMethod, int age) {
     return queryMethod?.where({'age > ?': age});
   }
-
 }

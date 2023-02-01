@@ -1,6 +1,5 @@
 // ignore_for_file: slash_for_doc_comments
 abstract class ReaderMethod<T> {
-
   /**
    * [isExists] checks if arg exist
    */

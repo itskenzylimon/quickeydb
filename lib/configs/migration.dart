@@ -8,7 +8,7 @@ class Migration {
   final Database? database;
   final bool? logger;
 
-  Migration({final this.database, final this.logger});
+  Migration({this.database, this.logger});
 
   Future force(DataAccessObject dataAccessObject) async {
     final newSchema = dataAccessObject.schema;

@@ -24,18 +24,17 @@ class Task {
         user = map['user'] != null ? User.fromMap(map['user']) : null;
 
   Map<String, dynamic> toMap() => {
-    'id': id,
-    'name': name,
-    'body': body,
-    'level': level,
-    'user': user != null ? user?.toMap() : null,
-  };
+        'id': id,
+        'name': name,
+        'body': body,
+        'level': level,
+        'user': user != null ? user?.toMap() : null,
+      };
 
   Map<String, dynamic> toTableMap() => {
-    'id': id,
-    'name': name,
-    'body': body,
-    'level': level,
-  };
-
+        'id': id,
+        'name': name,
+        'body': body,
+        'level': level,
+      };
 }

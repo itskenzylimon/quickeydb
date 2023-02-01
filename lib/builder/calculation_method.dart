@@ -1,7 +1,6 @@
 // ignore_for_file: slash_for_doc_comments
 
 abstract class CalculationMethod<T> {
-
   /**
    * [average] average of a num column
    */

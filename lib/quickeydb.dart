@@ -26,7 +26,7 @@ abstract class QuickeyDB {
   static QuickeyDBImpl? _getInstance;
   static QuickeyDBImpl? get getInstance {
     assert(_getInstance != null,
-    'No instance found, please make sure to call [initialize] before getting instance');
+        'No instance found, please make sure to call [initialize] before getting instance');
     return _getInstance;
   }
 
@@ -34,7 +34,7 @@ abstract class QuickeyDB {
     ///set a database name i.e 'tascan_db'
     required final String dbName,
     required final int dbVersion,
-    required final List<DataAccessObject >? dataAccessObjects,
+    required final List<DataAccessObject>? dataAccessObjects,
     final String? dbPath,
     final bool debugging = true,
     final bool importDB = false,
@@ -43,13 +43,6 @@ abstract class QuickeyDB {
     assert(dbVersion > 0);
     assert(dataAccessObjects != null && dataAccessObjects.isNotEmpty);
     assert(persist != null);
-    if (persist == true) {
-      assert(
-      dbName != null,
-      'Name property is required while not using in-memory database',
-      );
-    }
-
 
     final databasePath = persist! == false
         ? inMemoryDatabasePath
@@ -63,7 +56,8 @@ abstract class QuickeyDB {
         if (debugging) {
           if (kDebugMode) {
             print('Creating new copy from "assets/$dbName.db"');
-          }}
+          }
+        }
 
         // Make sure the parent directory isExists
         try {
@@ -88,35 +82,37 @@ abstract class QuickeyDB {
 
     return _getInstance = QuickeyDBImpl(
       logger: debugging,
-      dataAccessObjects: { for (var dao in dataAccessObjects!) dao.runtimeType : dao },
-      database: await databaseFactoryFfi.openDatabase(
-        databasePath,
-        options: OpenDatabaseOptions(
-          version: dbVersion,
-          onCreate: (Database? database, _) async {
-            await Future.forEach(
-                dataAccessObjects.map((dao) => dao.schema.sql), database!.execute);
-          },
-          onUpgrade: (Database database, int from, int to) async {
-            if (debugging) {
-              if (kDebugMode) {
-                print('Upgrading from $from to $to');
-
-              }}
-            final migration = Migration(database: database, logger: debugging);
-            await Future.forEach(dataAccessObjects, migration.force);
-          },
-          onDowngrade: (Database database, int from, int to) async {
-            if (debugging) {
-              if (kDebugMode) {
-                print('Downgrading from $from to $to');
-              }}
-            final migration = Migration(database: database, logger: debugging);
-            await Future.forEach(dataAccessObjects, migration.force);
-          }
-        )
-      ),
+      dataAccessObjects: {
+        for (var dao in dataAccessObjects!) dao.runtimeType: dao
+      },
+      database: await databaseFactoryFfi.openDatabase(databasePath,
+          options: OpenDatabaseOptions(
+              version: dbVersion,
+              onCreate: (Database? database, _) async {
+                await Future.forEach(
+                    dataAccessObjects.map((dao) => dao.schema.sql),
+                    database!.execute);
+              },
+              onUpgrade: (Database database, int from, int to) async {
+                if (debugging) {
+                  if (kDebugMode) {
+                    print('Upgrading from $from to $to');
+                  }
+                }
+                final migration =
+                    Migration(database: database, logger: debugging);
+                await Future.forEach(dataAccessObjects, migration.force);
+              },
+              onDowngrade: (Database database, int from, int to) async {
+                if (debugging) {
+                  if (kDebugMode) {
+                    print('Downgrading from $from to $to');
+                  }
+                }
+                final migration =
+                    Migration(database: database, logger: debugging);
+                await Future.forEach(dataAccessObjects, migration.force);
+              })),
     );
   }
-
 }
