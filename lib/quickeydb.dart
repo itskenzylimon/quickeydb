@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:quickeydb/configs/data_access_object.dart';
 import 'package:quickeydb/configs/migration.dart';
 
@@ -111,10 +110,10 @@ abstract class QuickeyDB {
     else {
       final databasePath = persist! == false
           ? inMemoryDatabasePath
-          : '${dbPath ?? await databaseFactoryFfi.getDatabasesPath()}/$dbName.db';
+          : '${dbPath ?? await databaseFactory.getDatabasesPath()}/$dbName.db';
 
       if (importDB) {
-        final isExists = await databaseFactoryFfi.databaseExists(databasePath);
+        final isExists = await databaseFactory.databaseExists(databasePath);
 
         if (!isExists) {
           // Should happen only the first time you launch your application
@@ -150,7 +149,7 @@ abstract class QuickeyDB {
         dataAccessObjects: {
           for (var dao in dataAccessObjects!) dao.runtimeType: dao
         },
-        database: await databaseFactoryFfi.openDatabase(databasePath,
+        database: await databaseFactory.openDatabase(databasePath,
             options: OpenDatabaseOptions(
                 version: dbVersion,
                 onCreate: (Database? database, _) async {
