@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickeydb/builder/query_method.dart';
 import 'package:quickeydb/quickeydb.dart';
-export 'package:sqflite_common/sql.dart' show ConflictAlgorithm;
 // This line is needed for windows apps
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -26,11 +27,12 @@ void main() async {
   await QuickeyDB.initialize(
     persist: false,
     dbVersion: 1,
+    dbPath: Directory.current.path,
     dataAccessObjects: [
       UserSchema(),
       TaskSchema(),
     ],
-    dbName: 'tascan_v0_1',
+    dbName: 'tascan_v0_2',
   );
 
   // final quickeyDB = QuickeyDB.initialize!(
@@ -164,21 +166,21 @@ void main() async {
   /**
    * [has-one] relation
   //  */
-  await QuickeyDB.getInstance!<UserSchema>()?.create(
-    User(
-      id: 'cytdutrsyerawq',
-      name: 'John Doe',
-      email: 'johndoe@gmail.com',
-      age: 10,
-      phone: '254712345678',
-      task: Task(
-        id: 'hjjhvjhvjh',
-        name: 'Create Package',
-        body: 'Create a Flutter DB Package',
-        level: 120,
-      ),
-    ),
-  );
+  // await QuickeyDB.getInstance!<UserSchema>()?.create(
+  //   User(
+  //     id: 'cytdutrsyerawq',
+  //     name: 'John Doe',
+  //     email: 'johndoe@gmail.com',
+  //     age: 10,
+  //     phone: '254712345678',
+  //     task: Task(
+  //       id: 'hjjhvjhvjh',
+  //       name: 'Create Package',
+  //       body: 'Create a Flutter DB Package',
+  //       level: 120,
+  //     ),
+  //   ),
+  // );
 
   /**
    * [has-many] relation
@@ -458,7 +460,7 @@ class _ExampleAppState extends State<ExampleApp> {
                                 context: context,
                                 builder: (BuildContext context) => AlertDialog(
                                   title: Text(
-                                      'Delete ${item.name} ${item.task!.name}Task'),
+                                      'Delete ${item.task == null ? '' : item.task!.name} Task'),
                                   content: const Text(
                                       'Are you sure you want to delete this task.?'),
                                   actions: <Widget>[

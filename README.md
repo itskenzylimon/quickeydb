@@ -54,10 +54,11 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
 8. [Import Local Database](#import-local-databases)
 9. [Persist Data Storage](#persist-data-storage)
 10. [Cool Color Logger](#cool-color-logger)
-11. [Taskan Crud Example](#taskan-crud-example)
-12. [Features Request & Bug Reports](#features-request-&-bug-reports)
-13. [Contributing](#contributing)
-14. [Articles and videos](#articles-and-videos)
+11. [Platform setup](#platform-setup)
+12. [Taskan Crud Example](#taskan-crud-example)
+13. [Features Request & Bug Reports](#features-request-&-bug-reports)
+14. [Contributing](#contributing)
+15. [Articles and videos](#articles-and-videos)
 
 # Introduction to QuickeyDB:
 
@@ -801,6 +802,31 @@ int (millisSinceEpoch) or string (iso8601)
 * Dart type: `Uint8List`
 
 
+# Platform setup
+## Linux
+
+```dart
+libsqlite3 and libsqlite3-dev linux packages are required.
+```
+
+One time setup for Ubuntu (to run as root):
+
+```dart
+dart tool/linux_setup.dart
+
+or
+
+sudo apt-get -y install libsqlite3-0 libsqlite3-dev
+```
+
+## MacOS
+Should work as is.
+
+## Windows
+Should work as is in debug mode (`sqlite3.dll is bundled`).
+
+In release mode, add `sqlite3.dll` in same folder as your executable.
+
 # Taskan Crud Example
 
 - [Taskan Crud Example](https://github.com/itskenzylimon/quickeydb/example)
@@ -833,7 +859,7 @@ If submitting a pull request, please ensure the following standards are met:
 This package has **THREE CORE** dependencies including core SQLite Packages.
 ```dart
 - sqflite_common_ffi // for desktop apps
-- sqflite_common
+- sqflite
 - collection
 ```
 

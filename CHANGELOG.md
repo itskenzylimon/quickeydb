@@ -1,3 +1,6 @@
+## [1.0.6+6]
+- Android database error fixed.
+- New setup and Release configurations for windows and Linux added to docs.
 ## [1.0.5+5]
 - Fixed an [issue #1](https://github.com/itskenzylimon/quickeydb/issues/1) where `find()` and `findBy({'id' : 'VALUE'})` method expected an int primary id.
 - Improved documentation on Database relationship.
