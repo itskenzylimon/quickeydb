@@ -1,7 +1,6 @@
 // ignore_for_file: slash_for_doc_comments
 
 abstract class RelationMethod<T> {
-
   /**
    * [isEmpty] checks if an entry exist in a table
    */

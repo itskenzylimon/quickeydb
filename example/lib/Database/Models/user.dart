@@ -9,31 +9,30 @@ class User {
   int? age;
   Task? task;
 
-  User({
-    this.id,
-    required this.name,
-    required this.email,
-    required this.age,
-    this.phone,
-    this.task
-  });
+  User(
+      {this.id,
+      required this.name,
+      required this.email,
+      required this.age,
+      this.phone,
+      this.task});
 
   Map<String, dynamic> toMap() => {
-    'id': id,
-    'name': name,
-    'email': email,
-    'age': age,
-    'phone': phone,
-    'task': task != null ? task!.toMap() : null,
-  };
+        'id': id,
+        'name': name,
+        'email': email,
+        'age': age,
+        'phone': phone,
+        'task': task != null ? task!.toMap() : null,
+      };
 
   Map<String, dynamic> toTableMap() => {
-    'id': id,
-    'name': name,
-    'email': email,
-    'age': age,
-    'phone': phone,
-  };
+        'id': id,
+        'name': name,
+        'email': email,
+        'age': age,
+        'phone': phone,
+      };
 
   User.fromMap(Map<String?, dynamic> map)
       : id = map['id'],
@@ -42,5 +41,4 @@ class User {
         age = map['age'],
         phone = map['phone'],
         task = map['task'] != null ? Task.fromMap(map['task']) : null;
-
 }

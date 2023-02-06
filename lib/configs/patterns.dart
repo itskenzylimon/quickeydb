@@ -1,7 +1,6 @@
 // DEFAULT `(?:DEFAULT\s+([\w_]+))?`;
 const tablePattern = r"CREATE\s+TABLE\s+([\w_]+)";
-const columnsPattern =
-    r"([\w_]+)[\s\w]+[,\n]";
+const columnsPattern = r"([\w_]+)[\s\w]+[,\n]";
 // const columnsPattern = r"([\w_]+)[\s\w]+,";
 // const primaryKeyPattern = r"\s*PRIMARY\s+KEY\s+\(([\w_]+)\)";
 // const primaryKeyTopPattern = r"([\w_]+).*\sPRIMARY\sKEY";
