@@ -25,7 +25,7 @@ void main() async {
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
   await QuickeyDB.initialize(
-    persist: false,
+    persist: true,
     dbVersion: 1,
     dbPath: Directory.current.path,
     dataAccessObjects: [
