@@ -1,5 +1,4 @@
-// ignore: implementation_imports
-import 'package:sqflite_common/src/sql_builder.dart';
+import '../configs/sql_builder.dart';
 
 extension QuickeyBuilder on SqlBuilder {
   String get fullSql {

@@ -1,5 +1,6 @@
 import 'package:quickeydb/controls/relation.dart';
-import 'package:quickeydb/quickeydb.dart';
+import 'package:quickeydb/quickeydb.dart'
+    if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
 
 class ProxyHasMany<T extends DataAccessObject, R extends DataAccessObject>
     extends Relation<T> {

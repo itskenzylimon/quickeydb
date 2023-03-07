@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickeydb/builder/query_method.dart';
-import 'package:quickeydb/quickeydb.dart';
+
 // This line is needed for windows apps
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'package:quickeydb/quickeydb.dart';
 
 import 'Database/Models/task.dart';
 import 'Database/Models/user.dart';
@@ -24,10 +26,24 @@ void main() async {
    */
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
+  // await QuickeyDB.initialize(
+  //   persist: true,
+  //   dbVersion: 1,
+  //   // dbPath: Directory.current.path,
+  //   dbPath: '/database/web',
+  //   dataAccessObjects: [
+  //     UserSchema(),
+  //     TaskSchema(),
+  //   ],
+  //   dbName: 'tascan_v0_2',
+  // );
+
+  print(Directory.current.path);
+
   await QuickeyDB.initialize(
     persist: true,
     dbVersion: 1,
-    dbPath: Directory.current.path,
+    dbPath: 'database/apps',
     dataAccessObjects: [
       UserSchema(),
       TaskSchema(),
@@ -714,7 +730,7 @@ class _ExampleAppState extends State<ExampleApp> {
 
   int minimum = 0;
   Future<void> minUserAge() async {
-    minimum = (await QuickeyDB.getInstance!<UserSchema>()!.minimum('age'))!;
+    minimum = (await QuickeyDB.getInstance!<UserSchema>()!.minimum('age')) ?? 0;
     // print('{{{{{minimum}}}}}');
     // print(minimum);
     // print('{{{{{minimum}}}}}');
@@ -730,7 +746,8 @@ class _ExampleAppState extends State<ExampleApp> {
 
   double average = 0;
   Future<void> averageUserAge() async {
-    double avg = (await QuickeyDB.getInstance!<UserSchema>()!.average('age'))!;
+    double avg =
+        (await QuickeyDB.getInstance!<UserSchema>()!.average('age')) ?? 0;
     average = avg.roundToDouble();
     // print('{{{{{average}}}}}');
     // print(average);

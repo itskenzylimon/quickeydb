@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:sqflite_common/src/sql_builder.dart';
+import 'package:quickeydb/configs/sql_builder.dart';
 
 class Logger {
   static final _stopwatch = Stopwatch();

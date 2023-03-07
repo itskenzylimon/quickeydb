@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'package:sqflite_common/sqlite_api.dart';
-import 'package:quickeydb/quickeydb.dart';
+import 'package:quickeydb/quickeydb.dart'
+    if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
+import 'package:sqflite/sqflite.dart';
 import '../types/schema.dart';
 import 'logger.dart';
 

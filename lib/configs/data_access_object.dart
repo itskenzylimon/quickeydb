@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:quickeydb/quickeydb.dart';
+import 'package:quickeydb/builder/quickey_builder.dart';
+import 'package:quickeydb/configs/sql_builder.dart';
+
+import 'package:quickeydb/quickeydb.dart'
+    if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
+
 import 'package:quickeydb/extension/core_extension.dart';
-import 'package:quickeydb/builder/quickey_Builder.dart';
 import 'package:quickeydb/builder/data_method.dart';
 import 'package:quickeydb/builder/query_method.dart';
 import 'package:quickeydb/configs/logger.dart';
 import 'package:quickeydb/controls/relation.dart';
 import 'package:quickeydb/types/schema.dart';
-// ignore: implementation_imports
-import 'package:sqflite_common/src/sql_builder.dart';
-import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DataAccessObject<T> implements QueryMethod<T?>, DataMethods<T?> {
   final Schema schema;

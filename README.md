@@ -812,17 +812,38 @@ libsqlite3 and libsqlite3-dev linux packages are required.
 One time setup for Ubuntu (to run as root):
 
 ```dart
-dart tool/linux_setup.dart
+dart tool
+/
+
+linux_setup.dart
 
 or
 
-sudo apt-get -y install libsqlite3-0 libsqlite3-dev
+sudo apt
+-
+get -
+
+y install
+libsqlite3-0
+libsqlite3-dev
 ```
 
 ## MacOS
+
 Should work as is.
 
+## Web
+
+Copy sqflite_sw.js and sqlite3.wasm from the example/web folder to your root/web folder.
+import the database as follows.
+
+```dart
+import 'package:quickeydb/quickeydb.dart' if (dart.library.html)
+'package:quickeydb/quickeywebdb.dart';
+```
+
 ## Windows
+
 Should work as is in debug mode (`sqlite3.dll is bundled`).
 
 In release mode, add `sqlite3.dll` in same folder as your executable.

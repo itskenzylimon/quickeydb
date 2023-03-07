@@ -1,4 +1,6 @@
-import 'package:quickeydb/quickeydb.dart';
+import 'package:quickeydb/quickeydb.dart'
+    if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
+
 import 'Models/user.dart';
 import 'Models/task.dart';
 
