@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickeydb/builder/query_method.dart';
@@ -7,7 +5,8 @@ import 'package:quickeydb/builder/query_method.dart';
 // This line is needed for windows apps
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'package:quickeydb/quickeydb.dart';
+import 'package:quickeydb/quickeydb.dart'
+    if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
 
 import 'Database/Models/task.dart';
 import 'Database/Models/user.dart';
@@ -26,30 +25,28 @@ void main() async {
    */
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
-  // await QuickeyDB.initialize(
-  //   persist: true,
-  //   dbVersion: 1,
-  //   // dbPath: Directory.current.path,
-  //   dbPath: '/database/web',
-  //   dataAccessObjects: [
-  //     UserSchema(),
-  //     TaskSchema(),
-  //   ],
-  //   dbName: 'tascan_v0_2',
-  // );
-
-  print(Directory.current.path);
-
   await QuickeyDB.initialize(
     persist: true,
     dbVersion: 1,
-    dbPath: 'database/apps',
+    // dbPath: Directory.current.path,
+    dbPath: '/database/web',
     dataAccessObjects: [
       UserSchema(),
       TaskSchema(),
     ],
     dbName: 'tascan_v0_2',
   );
+
+  // await QuickeyDB.initialize(
+  //   persist: true,
+  //   dbVersion: 1,
+  //   dbPath: 'database/apps',
+  //   dataAccessObjects: [
+  //     UserSchema(),
+  //     TaskSchema(),
+  //   ],
+  //   dbName: 'tascan_v0_2',
+  // );
 
   // final quickeyDB = QuickeyDB.initialize!(
   //    dbVersion: 2, // any version
