@@ -84,7 +84,7 @@ abstract class QuickeyDB {
         dataAccessObjects: {
           for (var dao in dataAccessObjects!) dao.runtimeType: dao
         },
-        database: await openDatabase('test.db', version: dbVersion,
+        database: await openDatabase('$dbName.db', version: dbVersion,
             onCreate: (Database? database, _) async {
           await Future.forEach(dataAccessObjects.map((dao) => dao.schema.sql),
               database!.execute);
@@ -95,7 +95,7 @@ abstract class QuickeyDB {
             }
           }
           final migration = Migration(database: database, logger: debugging);
-              await Future.forEach(dataAccessObjects, migration.force);
+          await Future.forEach(dataAccessObjects, migration.force);
             }, onDowngrade: (Database database, int from, int to) async {
               if (debugging) {
                 if (kDebugMode) {

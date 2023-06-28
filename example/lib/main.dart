@@ -28,7 +28,7 @@ void main() async {
   await QuickeyDB.initialize(
     dbName: "tascan_v0_2.db",
     persist: true,
-    dbVersion: 3,
+    dbVersion: 4,
     // dbPath: Directory.current.path,
     // dbPath: '/database/web',
     dataAccessObjects: [

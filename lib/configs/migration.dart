@@ -17,10 +17,6 @@ class Migration {
     List checkTable = await database!.rawQuery(
         "SELECT name FROM sqlite_master WHERE name='${dataAccessObject.schema.table}'");
 
-    print(newSchema);
-    print("{{{newSchema}}}");
-    print(checkTable);
-
     if (checkTable.isNotEmpty) {
       final oldSchema = Schema((await database!.rawQuery(
               "SELECT sql FROM sqlite_master WHERE name = '${dataAccessObject.schema.table}'"))

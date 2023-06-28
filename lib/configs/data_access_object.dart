@@ -346,7 +346,8 @@ class DataAccessObject<T> implements QueryMethod<T?>, DataMethods<T?> {
   Future<dynamic> insert(Map<String?, Object?> values) async {
     Map<String, Object?>? mapValue = values.cast<String, Object?>();
     Future<dynamic> call() async {
-      final builder = SqlBuilder.insert(schema.table!, mapValue);
+      final builder = SqlBuilder.insert(schema.table!, mapValue,
+          conflictAlgorithm: ConflictAlgorithm.replace);
 
       final completer = Completer<dynamic>()
         ..complete(database!.rawInsert(builder.sql, builder.arguments));

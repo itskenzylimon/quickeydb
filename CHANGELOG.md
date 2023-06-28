@@ -1,3 +1,9 @@
+## [1.1.3+8]
+
+- Fix migration of new tables in schema.
+- Fixed android dbName not working.
+- Converted all insert functions to use the ConflictAlgorithm.replace thus performing an upsert.
+
 ## [1.1.0+7]
 
 - Windows and Linux build bug fixes.

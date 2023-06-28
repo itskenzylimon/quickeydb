@@ -13,6 +13,7 @@ class UserSchema extends DataAccessObject<User> {
             id TEXT NOT NULL PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
+            address TEXT,
             phone TEXT,
             age INTEGER
           )
@@ -73,7 +74,8 @@ class DemoSchema extends DataAccessObject<Demo> {
           CREATE TABLE demo (
             id TEXT NOT NULL PRIMARY KEY,
             name TEXT NOT NULL,
-            body TEXT
+            body TEXT,
+            level INTEGER DEFAULT "1"
           )
           ''',
           relations: [],
