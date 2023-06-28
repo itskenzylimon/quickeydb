@@ -1,4 +1,4 @@
-## [1.1.3+8]
+## [(1.2.0+8]
 
 - Fix migration of new tables in schema.
 - Fixed android dbName not working.
