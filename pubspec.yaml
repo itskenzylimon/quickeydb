@@ -3,10 +3,10 @@ description: QuickeyDB is a simple ORM inspired from ActiveRecord, built on-top 
 
 homepage: https://github.com/itskenzylimon/quickey
 
-version: 1.1.3+8
+version: 1.2.0+8
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
+  sdk: ">=2.17.6 <4.0.0"
 
 dependencies:
   flutter:
