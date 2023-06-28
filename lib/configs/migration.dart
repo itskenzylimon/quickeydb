@@ -13,51 +13,65 @@ class Migration {
 
   Future force(DataAccessObject dataAccessObject) async {
     final newSchema = dataAccessObject.schema;
-    final oldSchema = Schema((await database!.rawQuery(
-            "SELECT sql FROM sqlite_master WHERE name = '${dataAccessObject.schema.table}'"))
-        .first
-        .values
-        .first as String);
 
-    if (newSchema.sql != oldSchema.sql) {
-      final oldColumns =
-          oldSchema.columns.map((column) => column.name).toList();
-      final newColumns =
-          newSchema.columns.map((column) => column.name).toList();
+    List checkTable = await database!.rawQuery(
+        "SELECT name FROM sqlite_master WHERE name='${dataAccessObject.schema.table}'");
 
-      /// Remove any new column not exists in previous sql
-      oldColumns.removeWhere((oldColumn) => !newColumns.contains(oldColumn));
+    print(newSchema);
+    print("{{{newSchema}}}");
+    print(checkTable);
 
-      await Future.forEach([
-        /// Disable foreign key constraint check
-        'PRAGMA foreign_keys=OFF',
+    if (checkTable.isNotEmpty) {
+      final oldSchema = Schema((await database!.rawQuery(
+              "SELECT sql FROM sqlite_master WHERE name = '${dataAccessObject.schema.table}'"))
+          .first
+          .values
+          .first as String);
 
-        /// Start a transaction
-        'BEGIN TRANSACTION',
+      if (newSchema.sql != oldSchema.sql) {
+        final oldColumns =
+            oldSchema.columns.map((column) => column.name).toList();
+        final newColumns =
+            newSchema.columns.map((column) => column.name).toList();
 
-        /// Suffex table with `_old`
-        'ALTER TABLE ${oldSchema.table} RENAME TO ${oldSchema.table}_old',
+        /// Remove any new column not exists in previous sql
+        oldColumns.removeWhere((oldColumn) => !newColumns.contains(oldColumn));
 
-        /// Creating the new table on its new format
-        newSchema.sql,
+        await Future.forEach([
+          /// Disable foreign key constraint check
+          'PRAGMA foreign_keys=OFF',
 
-        /// Populating the table with the data
-        'INSERT INTO ${newSchema.table} (${oldColumns.join(', ')}) SELECT ${oldColumns.join(', ')} FROM ${oldSchema.table}_old',
+          /// Start a transaction
+          'BEGIN TRANSACTION',
 
-        /// Drop old table
-        'DROP TABLE ${oldSchema.table}_old',
+          /// Suffex table with `_old`
+          'ALTER TABLE ${oldSchema.table} RENAME TO ${oldSchema.table}_old',
 
-        /// Commit the transaction
-        'COMMIT',
+          /// Creating the new table on its new format
+          newSchema.sql,
 
-        /// Enable foreign key constraint check
-        'PRAGMA foreign_keys=ON',
-      ], (dynamic sql) async {
-        final completer = Completer()..complete(database!.execute(sql));
+          /// Populating the table with the data
+          'INSERT INTO ${newSchema.table} (${oldColumns.join(', ')}) SELECT ${oldColumns.join(', ')} FROM ${oldSchema.table}_old',
 
-        if (logger!) Logger.sql(completer.future, sql);
-        await completer.future;
-      });
+          /// Drop old table
+          'DROP TABLE ${oldSchema.table}_old',
+
+          /// Commit the transaction
+          'COMMIT',
+
+          /// Enable foreign key constraint check
+          'PRAGMA foreign_keys=ON',
+        ], (dynamic sql) async {
+          final completer = Completer()..complete(database!.execute(sql));
+
+          if (logger!) Logger.sql(completer.future, sql);
+          await completer.future;
+        });
+      }
+    } else {
+      List<DataAccessObject<dynamic>> dataAccessObjects = [dataAccessObject];
+      await Future.forEach(
+          dataAccessObjects.map((dao) => dao.schema.sql), database!.execute);
     }
   }
 }

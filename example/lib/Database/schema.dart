@@ -1,6 +1,7 @@
 import 'package:quickeydb/quickeydb.dart'
     if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
 
+import 'Models/demo.dart';
 import 'Models/user.dart';
 import 'Models/task.dart';
 
@@ -47,9 +48,10 @@ class TaskSchema extends DataAccessObject<Task> {
             id TEXT NOT NULL PRIMARY KEY,
             user_id TEXT NOT NULL,
             name TEXT NOT NULL,
+            slug TEXT,
             body TEXT,
             status TEXT,
-            level INTEGER DEFAULT "1" NOT NULL,
+            level INTEGER DEFAULT "1",
             FOREIGN KEY (user_id) REFERENCES user (id)
           )
           ''',
@@ -60,6 +62,25 @@ class TaskSchema extends DataAccessObject<Task> {
             encode: (task) => Task.fromMap(task),
             decode: (task) => task!.toMap(),
             decodeTable: (task) => task!.toTableMap(),
+          ),
+        );
+}
+
+class DemoSchema extends DataAccessObject<Demo> {
+  DemoSchema()
+      : super(
+          '''
+          CREATE TABLE demo (
+            id TEXT NOT NULL PRIMARY KEY,
+            name TEXT NOT NULL,
+            body TEXT
+          )
+          ''',
+          relations: [],
+          converter: Converter(
+            encode: (demo) => Demo.fromMap(demo),
+            decode: (demo) => demo!.toMap(),
+            decodeTable: (demo) => demo!.toTableMap(),
           ),
         );
 }

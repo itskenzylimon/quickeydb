@@ -26,15 +26,16 @@ void main() async {
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
   await QuickeyDB.initialize(
+    dbName: "tascan_v0_2.db",
     persist: true,
-    dbVersion: 1,
+    dbVersion: 3,
     // dbPath: Directory.current.path,
-    dbPath: '/database/web',
+    // dbPath: '/database/web',
     dataAccessObjects: [
       UserSchema(),
       TaskSchema(),
+      DemoSchema(),
     ],
-    dbName: 'tascan_v0_2',
   );
 
   // await QuickeyDB.initialize(
