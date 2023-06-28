@@ -3,6 +3,7 @@
 - Fix migration of new tables in schema.
 - Fixed android dbName not working.
 - Converted all insert functions to use the ConflictAlgorithm.replace thus performing an upsert.
+- Web support is now stable.
 
 ## [1.1.0+7]
 
