@@ -28,7 +28,7 @@ class Task {
         'name': name,
         'body': body,
         'level': level,
-        'user': user != null ? user?.toMap() : null,
+        'user': user?.toMap(),
       };
 
   Map<String, dynamic> toTableMap() => {
