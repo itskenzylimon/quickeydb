@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:quickeydb/configs/data_access_object.dart';
 import 'package:quickeydb/configs/migration.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -33,9 +32,9 @@ abstract class QuickeyDB {
     required final int dbVersion,
     required final List<DataAccessObject>? dataAccessObjects,
     final String? dbPath,
-    final bool debugging = true,
+    final bool debugging = false,
     final bool importDB = false,
-    final bool? persist = false,
+    final bool? persist = true,
   }) async {
     assert(dbVersion > 0);
     assert(dataAccessObjects != null && dataAccessObjects.isNotEmpty);

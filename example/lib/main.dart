@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickeydb/builder/query_method.dart';
+import 'package:quickeydb/memory/memory.dart';
 
 // This line is needed for windows apps
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -15,6 +16,12 @@ import 'Database/schema.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  Memory memory = await Memory().initMemory();
+
+  await memory.setDouble('data', 99.99);
+  await memory.getDouble('data');
+  await memory.hasMemory('data');
+
   /**
    * For windows uncomment the following
    */
@@ -26,10 +33,12 @@ void main() async {
   // sudo apt-get -y install libsqlite3-0 libsqlite3-dev
 
   await QuickeyDB.initialize(
-    dbName: "tascan_v0_2.db",
+    dbName: "QuickeyDB.db",
     persist: true,
     dbVersion: 4,
+    // For passing custom DB Location
     // dbPath: Directory.current.path,
+    // For web pass dbPath as /database/web
     // dbPath: '/database/web',
     dataAccessObjects: [
       UserSchema(),
@@ -37,209 +46,6 @@ void main() async {
       DemoSchema(),
     ],
   );
-
-  // await QuickeyDB.initialize(
-  //   persist: true,
-  //   dbVersion: 1,
-  //   dbPath: 'database/apps',
-  //   dataAccessObjects: [
-  //     UserSchema(),
-  //     TaskSchema(),
-  //   ],
-  //   dbName: 'tascan_v0_2',
-  // );
-
-  // final quickeyDB = QuickeyDB.initialize!(
-  //    dbVersion: 2, // any version
-  // );
-
-  /**
-   * [all]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.all;
-
-  /**
-   * [select]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.select(['age']).toList();
-
-  /**
-   * [where]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.where({'name': 'Kenzy Limon'}).or({'age': '20'}).toList();
-
-  /**
-   * [where 2]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.where({'age >= ?': 18}).toList();
-
-  /**
-   * [Order]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.order(['age']).toList();
-
-  /**
-   * [group by]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.group(['name']).having('LENGTH(name) > 5').toList();
-
-  /**
-   * [limit] | [offset]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.limit(1).offset(10).toList();
-
-  /**
-   * [distinct]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.distinct().toList();
-
-  /**
-   * [joins]
-   */
-  // QuickeyDB.getInstance!<TaskSchema>()!.joins([UserSchema]).toList();
-
-  /**
-   * [where]
-   */
-  // print(await QuickeyDB.getInstance!<UserSchema>()?.count());
-
-  /**
-   * [Transaction]
-   */
-
-  // QuickeyDB.getInstance!.database!.transaction((txn) async {
-  //
-  //   txn.insert('users', { mapped data }, conflictAlgorithm: ConflictAlgorithm.replace);
-  //   txn.delete('users', where: 'id = ?', whereArgs: [id]);
-  //   txn.update('users', { mapped data });
-  //
-  //   txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
-  //   txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
-  //   txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
-  //   txn.rawQuery('SELECT COUNT(*) FROM users');
-  //
-  //   await txn.execute('CREATE TABLE task_types (id INTEGER PRIMARY KEY)');
-  //
-  // });
-
-  /**
-   * [Batch]
-   */
-  // var batch = QuickeyDB.getInstance!.database!.batch();
-  // batch.insert('users', {'name': 'Kenzy'});
-  // batch.update('users', {'name': 'Kenzy Limon'}, where: 'name = ?', whereArgs: ['Kenzy']);
-  // batch.delete('users', where: 'name = ?', whereArgs: ['Kenzy']);
-  // var results = await batch.commit();
-
-  /**
-   * [Batch with Transactions]
-   */
-
-  // await QuickeyDB.getInstance!.database!.transaction((txn) async {
-  //   var batch = txn.batch();
-  //
-  //   // ...
-  //
-  //   // the actual commit will happen when the transaction is committed
-  //   // however the data is available in this transaction
-  //   await batch.commit();
-  //
-  //   //  ...
-  // });
-
-  /**
-   * [limit]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.limit(1);
-
-  /**
-   * [find]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.find('1');
-
-  /**
-   * [findBy]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.findBy({'name': 'Jane Doe'});
-
-  /**
-   * [first]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.first;
-
-  /**
-   * [last]
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.last;
-
-  /**
-   * [take] limit to 10
-   */
-  // QuickeyDB.getInstance!<UserSchema>()!.take(10);
-
-  /**
-   * [has-one] relation
-  //  */
-  // await QuickeyDB.getInstance!<UserSchema>()?.create(
-  //   User(
-  //     id: 'cytdutrsyerawq',
-  //     name: 'John Doe',
-  //     email: 'johndoe@gmail.com',
-  //     age: 10,
-  //     phone: '254712345678',
-  //     task: Task(
-  //       id: 'hjjhvjhvjh',
-  //       name: 'Create Package',
-  //       body: 'Create a Flutter DB Package',
-  //       level: 120,
-  //     ),
-  //   ),
-  // );
-
-  /**
-   * [has-many] relation
-   */
-  // await QuickeyDB.getInstance!<UserColumn>()?.create(
-  //   const User(
-  //       name: 'Kenzy Limon',
-  //       email: 'itskenzylimon@gmail.com',
-  //       phone: '+254 712345678',
-  //       tasks: List.generate(
-  //               3,
-  //               (i) => Task(name: 'Create Package $i', body: 'Create a Flutter DB Package $i'),
-  //             ),
-  //   ),
-  // );
-
-  // print( await QuickeyDB.getInstance!<TaskSchema>()!.find('hjjhvjhvjh'));
-
-  /**
-   * [destroy-all]
-   */
-  // await QuickeyDB.getInstance!<UserTable>()!.destroyAll();
-  // await QuickeyDB.getInstance!<TaskTable>()!.destroyAll();
-
-  /**
-   * [update-all]
-   */
-  // await QuickeyDB.getInstance!<UserColumn>()!.updateAll({'name': 'Quick DB'});
-
-  /**
-   * [update]
-   */
-  // await QuickeyDB.getInstance!<UserColumn>()!.
-  // update(const User(id: 1, name: 'Lion', email: 'itskenzylimon@gmail.com'));
-
-  /**
-   * [delete]
-   */
-  // await QuickeyDB.instance<UserColumn>().delete(User(id: 1));
-
-  /**
-   * [create]
-   */
-  // await QuickeyDB.getInstance!<TaskColumn>()?.
-  // create(const Task(id: 1, name: 'Publish Package', body: 'Publish Package is QuickeyDB'));
 
   runApp(const ExampleApp());
 }
@@ -722,11 +528,13 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   int sum = 0;
+
   Future<void> totalUserAge() async {
     sum = await QuickeyDB.getInstance!<UserSchema>()!.sum('age') ?? 0;
   }
 
   int minimum = 0;
+
   Future<void> minUserAge() async {
     minimum = (await QuickeyDB.getInstance!<UserSchema>()!.minimum('age')) ?? 0;
     // print('{{{{{minimum}}}}}');
@@ -735,6 +543,7 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   int maximum = 0;
+
   Future<void> maxUserAge() async {
     maximum = await QuickeyDB.getInstance!<UserSchema>()!.maximum('age') ?? 0;
     // print('{{{{{maximum}}}}}');
@@ -743,6 +552,7 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   double average = 0;
+
   Future<void> averageUserAge() async {
     double avg =
         (await QuickeyDB.getInstance!<UserSchema>()!.average('age')) ?? 0;

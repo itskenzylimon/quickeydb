@@ -14,7 +14,52 @@ dependencies:
     sdk: flutter
 
   quickeydb:
-    path: ../
+     path: ../
+#    git:
+#      url: https://github.com/itskenzylimon/quickeydb
+#      ref: main
+
+  fluent_ui: ^4.7.2
+  device_frame: ^1.1.0
+  flutter_svg: ^2.0.4
+  metaballs: ^1.5.0
+  responsive_table: ^0.2.0+2
+  # wasm: ^0.0.2
+  flutter_code_editor: ^0.2.14
+  flutter_highlight: ^0.7.0
+  mrx_charts: ^0.1.3
+  zoom_widget: ^2.0.1
+  google_fonts: ^4.0.4
+  path_drawing: ^1.0.1
+  dashboard: ^0.0.3+1
+  text_style_editor: ^1.1.1
+  # quickeydb: ^1.2.0+8
+  fluid_kit: ^2.1.0
+  file_picker: ^5.3.2
+  bard_api: ^1.0.0
+  hsv_color_pickers: ^0.2.2
+  diagram_editor: ^0.1.6
+  flutter_web_seo: ^0.0.1
+  desktop_webview_window: ^0.2.3
+  path_morph: ^1.1.1
+  morphing_text: ^1.0.1
+  # fzregex: ^2.0.0
+  # rive: ^0.11.4
+  # chat_gpt_sdk: ^2.2.3
+
+  vs_scrollbar: ^0.2.1
+  ayrshare_flutter: ^0.1.3+4
+  get_ip_address: ^0.0.5
+  googleapis: ^11.4.0
+  flutter_heatmap_calendar: ^1.0.5
+  icons_plus: ^4.0.0
+  media_kit: ^1.1.7
+  media_kit_video: ^1.1.8
+  media_kit_libs_video: ^1.0.1
+  markdown_widget: ^2.2.0
+
+#  quickeydb:
+#    path: ../
 
 dev_dependencies:
   flutter_test:

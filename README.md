@@ -51,14 +51,15 @@ Apart from data access technique, QuickeyDB can benefit a developer in many ways
 5. [Database Migration](#database-migration)
 6. [Transaction](#transaction)
 7. [Batch support](#batch_support)
-8. [Import Local Database](#import-local-databases)
-9. [Persist Data Storage](#persist-data-storage)
-10. [Cool Color Logger](#cool-color-logger)
-11. [Platform setup](#platform-setup)
-12. [Taskan Crud Example](#taskan-crud-example)
-13. [Features Request & Bug Reports](#features-request-&-bug-reports)
-14. [Contributing](#contributing)
-15. [Articles and videos](#articles-and-videos)
+8. [Memory Cache](#memory_cache)
+9. [Import Local Database](#import-local-databases)
+10. [Persist Data Storage](#persist-data-storage)
+11. [Cool Color Logger](#cool-color-logger)
+12. [Platform setup](#platform-setup)
+13. [Taskan Crud Example](#taskan-crud-example)
+14. [Features Request & Bug Reports](#features-request-&-bug-reports)
+15. [Contributing](#contributing)
+16. [Articles and videos](#articles-and-videos)
 
 # Introduction to QuickeyDB:
 
@@ -762,6 +763,103 @@ to change this action, you have to set `continueOnError` to `false`
 await batch.commit(continueOnError: true);
 ```
 
+
+# Memory Cache
+Memory is meant to make data management of any string type fast and easy. 
+You can easily get any type of datatype (Int, Strings, Booleans, Doubles, Map, Models and T Any kind of data) 
+from within any state of the app.
+
+### Instantiation
+
+```dart
+// Import memory class
+import 'package:quickeydb/memory/memory.dart';
+
+  // Make main function async
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Add bellow line to main() func
+  Memory memory = await Memory().initMemory();
+  runApp(const MyApp());
+}
+```
+
+To reference an instance of Memory, use one of the following methods
+
+```dart
+
+Memory memory = await Memory().initMemory();
+
+bool hasMemory = await memory.hasMemory('message');
+// print('@@@ -- hasMemory 1 -- $hasMemory');
+
+/// You can also use you own custom instance on memory and access it using the memoryKey
+/// for this to work you need to pass the correct memoryKey to get the right instance
+Memory memory = await Memory().instance(memoryKey: 'customMemory');
+
+
+```
+
+### Methods
+
+Storage and retrieval methods are demonstrated in the code snippet below:
+
+```dart
+
+/// initialise Memory instance
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  ///initialize memory
+  await Memory.instance(filename:"memory.txt").initMemory();
+  runApp(const MyApp());
+}
+
+///To retrieve an instance of Memory in another dart file, use one of the following ways:
+///Note: this will retrieve the current initialization of the Memory object
+///It is not assured you will get the most current data using synchronous functions getString(), getBool(), getInt() and getDouble()
+///To get most current data, either use the instantiation below or retrieve data using async function await memory.readMemory('key')
+
+Memory memory = await Memory().instance();
+
+/// You can also use you own custom instance on memory and access it using the memoryKey
+/// for this to work you need to pass the correct memoryKey to get the right instance
+Memory memory = await Memory().instance(memoryKey: 'customMemory');
+
+
+/// you can easily check if any data is saved on memory using [isMemoryEmpty]
+await memory.isMemoryEmpty()
+
+
+///Reading data
+// await memory.setMap('message', {});
+// await memory.setInt('message', 11);
+// await memory.setString('message', 'Hakuna Matata');
+// await memory.setBool('message', true);
+await memory.setDouble('message', 0.99);
+
+
+String? setDouble = await memory.getString('message');
+// print('@@@ -- setMap 1 -- $setDouble');
+hasMemory = await memory.hasMemory('message');
+// print('@@@ -- hasMemory 2 -- $hasMemory');
+await memory.setDouble('message', message);
+setDouble = await memory.getString('message');
+// print('@@@ -- setMap 2 -- $setDouble');
+await memory.deleteMemory('message');
+hasMemory = await memory.hasMemory('message');
+// print('@@@ -- hasMemory 3 -- $hasMemory');
+
+```
+
+
+```dart
+
+  final quickeyDB = QuickeyDB.initialize!(
+     debugging: false, // any version
+  );
+
+```
 
 
 # Cool Color Logger
