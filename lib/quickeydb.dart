@@ -46,6 +46,10 @@ abstract class QuickeyDB {
           ? inMemoryDatabasePath
           : '${dbPath ?? await getDatabasesPath()}/$dbName.db';
 
+      print("{{{databasePath}}}");
+      print(databasePath);
+      print("{{{databasePath}}}");
+
       if (importDB) {
         final isExists = await databaseExists(databasePath);
 

@@ -1,20 +1,24 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'memorymodel.dart';
 import 'package:quickeydb/quickeydb.dart'
     if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
 
 /// Memory is a class that is used to store data in a file.
 class Memory {
-  final String _defaultMemoryKey = 'memory.db';
+  final String _defaultMemoryKey = 'memory';
   final int _cipher = 254;
 
   QuickeyDBImpl? _quickeyDBImpl;
 
   Future<Memory> initMemory() async {
     Memory memory = Memory();
+    String dbName = '$_defaultMemoryKey';
+    if(kIsWeb){
+      dbName = dbName + '.db';
+    }
     memory._quickeyDBImpl = await QuickeyDB.initialize(
-      dbName: _defaultMemoryKey,
+      dbName: dbName,
       persist: false,
       debugging: true,
       dbVersion: 1,
@@ -28,7 +32,10 @@ class Memory {
 
   Future<Memory> instance({String? memoryKey}) async {
     Memory memory = Memory();
-    String dbName = memoryKey == null ? _defaultMemoryKey : '$_defaultMemoryKey.db';
+    String dbName = memoryKey == null ? _defaultMemoryKey : memoryKey;
+    if(kIsWeb){
+      dbName = dbName + '.db';
+    }
     memory._quickeyDBImpl = await QuickeyDB.initialize(
       dbName: dbName,
       persist: true,
@@ -71,6 +78,7 @@ class Memory {
     if (data != null) {
       for (MemoryModel? memoryModel in data) {
         if (memoryModel != null) {
+          memoryModel.data = _decrypt(memoryModel.data.toString(), _cipher);
           dataList.add(memoryModel);
         }
       }
@@ -178,6 +186,29 @@ class Memory {
     }
   }
 
+  ///Set DateTime [setDateTime]
+  Future<bool> setDateTime(String name, DateTime value) async {
+    MemoryModel memoryModel = MemoryModel(
+        name: name,
+        data: value.toIso8601String(),
+        type: 'datetime');
+    return await upsertMemory(memoryModel);
+  }
+
+  ///Get DateTime [getDateTime]
+  Future<DateTime?> getDateTime(String name) async {
+    try{
+      MemoryModel? memoryModel = await _quickeyDBImpl!<MapDataSchema>()!
+          .findBy({'name': name});
+      if (memoryModel == null) {
+        return null;
+      }
+      return DateTime.parse(_decrypt(memoryModel.data, _cipher));
+    } catch (e){
+      return null;
+    }
+  }
+
   ///Set Double [setDouble]
   Future<bool> setDouble(String name, double value) async {
     MemoryModel memoryModel = MemoryModel(
@@ -225,16 +256,40 @@ class Memory {
   }
 
   ///Set Map [setMap]
-  Future<bool> setMap(String name, Map value) async {
+  Future<bool> setMap(String name, Map<String, dynamic> value) async {
     MemoryModel memoryModel = MemoryModel(
         name: name,
         data: json.encode(value),
-        type: 'int');
+        type: 'map');
     return await upsertMemory(memoryModel);
   }
 
   ///Get Map [getMap]
-  Future<Map?> getMap(String name) async {
+  Future<Map<String, dynamic>?> getMap(String name) async {
+    try{
+      MemoryModel? memoryModel = await _quickeyDBImpl!<MapDataSchema>()!
+          .findBy({'name': name});
+      if (memoryModel == null) {
+        return null;
+      }
+      return json.decode(_decrypt(memoryModel.data, _cipher));
+    } catch (e){
+      return null;
+    }
+  }
+
+
+  ///Set Map [setList]
+  Future<bool> setList(String name, List value) async {
+    MemoryModel memoryModel = MemoryModel(
+        name: name,
+        data: json.encode(value),
+        type: 'list');
+    return await upsertMemory(memoryModel);
+  }
+
+  ///Get Map [getList]
+  Future<List?> getList(String name) async {
     try{
       MemoryModel? memoryModel = await _quickeyDBImpl!<MapDataSchema>()!
           .findBy({'name': name});
