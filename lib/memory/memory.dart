@@ -272,7 +272,8 @@ class Memory {
       if (memoryModel == null) {
         return null;
       }
-      return json.decode(_decrypt(memoryModel.data, _cipher));
+      Map<String, dynamic> dataMap = json.decode(_decrypt(memoryModel.data, _cipher));
+      return dataMap;
     } catch (e){
       return null;
     }
