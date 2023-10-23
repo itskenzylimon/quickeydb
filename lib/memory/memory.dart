@@ -13,9 +13,9 @@ class Memory {
 
   Future<Memory> initMemory() async {
     Memory memory = Memory();
-    String dbName = '$_defaultMemoryKey';
+    String dbName = _defaultMemoryKey;
     if(kIsWeb){
-      dbName = dbName + '.db';
+      dbName = '$dbName.db';
     }
     memory._quickeyDBImpl = await QuickeyDB.initialize(
       dbName: dbName,
@@ -32,9 +32,9 @@ class Memory {
 
   Future<Memory> instance({String? memoryKey}) async {
     Memory memory = Memory();
-    String dbName = memoryKey == null ? _defaultMemoryKey : memoryKey;
+    String dbName = memoryKey ?? _defaultMemoryKey;
     if(kIsWeb){
-      dbName = dbName + '.db';
+      dbName = '$dbName.db';
     }
     memory._quickeyDBImpl = await QuickeyDB.initialize(
       dbName: dbName,
