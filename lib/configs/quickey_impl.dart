@@ -4,6 +4,11 @@ class QuickeyDBImpl implements QuickeyDB {
   /// `Data Access Object (DAO)`
   final Map<Type, DataAccessObject?>? dataAccessObjects;
 
+  final ConflictAlgorithm conflictReplace = ConflictAlgorithm.replace;
+  final ConflictAlgorithm conflictAbort = ConflictAlgorithm.abort;
+  final ConflictAlgorithm conflictFail = ConflictAlgorithm.fail;
+  final ConflictAlgorithm conflictRollback = ConflictAlgorithm.rollback;
+
   /// print loggers `
   final bool? logger;
 

@@ -7,6 +7,7 @@ import 'package:quickeydb/builder/query_method.dart';
 
 import 'package:quickeydb/quickeydb.dart'
     if (dart.library.html) 'package:quickeydb/quickeywebdb.dart';
+import 'package:quickeydb/types/conflicts.dart';
 
 import 'Database/Models/task.dart';
 import 'Database/Models/user.dart';
@@ -163,11 +164,11 @@ void main() async {
   /**
    * [Batch]
    */
-  // var batch = QuickeyDB.getInstance!.database!.batch();
-  // batch.insert('users', {'name': 'Kenzy'});
-  // batch.update('users', {'name': 'Kenzy Limon'}, where: 'name = ?', whereArgs: ['Kenzy']);
-  // batch.delete('users', where: 'name = ?', whereArgs: ['Kenzy']);
-  // var results = await batch.commit();
+  var batch = QuickeyDB.getInstance!.database!.batch();
+  batch.insert('users', {'name': 'Kenzy'}, conflictAlgorithm: QuickeyDB.getInstance!.conflictReplace);
+  batch.update('users', {'name': 'Kenzy Limon'}, where: 'name = ?', whereArgs: ['Kenzy']);
+  batch.delete('users', where: 'name = ?', whereArgs: ['Kenzy']);
+  var results = await batch.commit();
 
   /**
    * [Batch with Transactions]
