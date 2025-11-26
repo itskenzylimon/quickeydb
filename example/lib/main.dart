@@ -16,7 +16,7 @@ import 'Database/schema.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Memory memory = await Memory().initMemory();
+  Memory memory = await Memory().instance();
 
   await memory.setDouble('data', 99.99);
   await memory.getDouble('data');

@@ -11,11 +11,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite_common_ffi: ^2.3.0+2
+  # Mobile SQLite
   sqflite: ^2.3.0
-  collection: ^1.17.2
-  sqflite_common_ffi_web: ^0.4.0
+
+  # Desktop SQLite
+  sqflite_common_ffi: ^2.3.0+2
+
+  # Web SQLite (WASM)
+  sqlite3: ^3.1.0
+
+  # Optional but common
   path_provider: ^2.0.15
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:
