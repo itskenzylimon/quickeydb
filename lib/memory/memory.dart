@@ -1,32 +1,39 @@
 import 'dart:convert';
-import 'dart:io' show File;
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-
-import 'memorymodel.dart';
-import 'web_storage.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:idb_shim/idb.dart';
+// import 'package:idb_shim/idb_browser.dart' as idb_browser;
+// import 'package:idb_shim/idb_io.dart' as idb_io;
+import 'memorymodel.dart';
+
+import 'package:idb_shim/idb.dart';
+import 'package:idb_shim/idb_browser.dart' as idb_browser;
+import 'package:idb_shim/idb_io.dart' as idb_io;
+import 'package:flutter/foundation.dart';
+
 
 class Memory {
   static final Map<String, Memory> _instances = {};
 
-  final String _defaultMemoryKey = 'memory.json';
+  final String _defaultMemoryKey = 'memory';
   final int _cipher = 254;
 
-  late String _fileName;
+  late String _fileName; // used as namespace prefix
   Map<String, dynamic> _store = {};
   bool _initialized = false;
 
-  // Fast I/O: debounce saving (write at most once per 300 ms)
+  // IDB objects
+  late IdbFactory _idbFactory;
+  Database? _db;
+
   Timer? _saveDebounce;
 
-  // ───────────────────────────────────────────────────────────────
-  // Backward-compatible factory
-  // ───────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// Factory (unchanged)
+// ───────────────────────────────────────────────────────────────
   Future<Memory> instance({String? memoryKey}) async {
     final key = memoryKey ?? _defaultMemoryKey;
 
-    // Cached instance
     if (_instances.containsKey(key)) {
       return _instances[key]!;
     }
@@ -37,83 +44,100 @@ class Memory {
     return mem;
   }
 
-  Future<void> _delaySave() async {
-    _saveDebounce?.cancel();
-    _saveDebounce = Timer(const Duration(milliseconds: 300), () async {
-      await _persist();
-    });
-  }
-
-  // ───────────────────────────────────────────────────────────────
-  // Initialization
-  // ───────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// INIT (FULL CROSS-PLATFORM IDB: Web/WASM/Native)
+// ───────────────────────────────────────────────────────────────
   Future<void> _init(String key) async {
     _fileName = key;
 
     if (kIsWeb) {
-      _loadFromWeb();
+      // Web / WASM uses browser IndexedDB
+      _idbFactory = idb_browser.getIdbFactory()!;
     } else {
-      await _loadFromFile();
+      // Native (Android/iOS/macOS/Windows/Linux)
+      _idbFactory = idb_io.getIdbFactoryPersistent(_fileName);
     }
 
+    _db = await _idbFactory.open(
+      "quickey_memory_db",
+      version: 1,
+      onUpgradeNeeded: (VersionChangeEvent e) {
+        final db = e.database;
+        if (!db.objectStoreNames.contains("memory_store")) {
+          db.createObjectStore("memory_store");
+        }
+      },
+    );
+
+    await _loadFromIDB();
     _initialized = true;
   }
+
 
   bool isMemoryInitialized() => _initialized;
   Future<bool> isMemoryEmpty() async => _store.isEmpty;
 
-  // ───────────────────────────────────────────────────────────────
-  // Web storage
-  // ───────────────────────────────────────────────────────────────
-  void _loadFromWeb() {
-    final raw = WebStorage.getItem(_fileName);
-    if (raw != null) {
-      try {
-        _store = jsonDecode(raw);
-      } catch (_) {
-        _store = {};
+// ───────────────────────────────────────────────────────────────
+// LOAD FROM IDB
+// ───────────────────────────────────────────────────────────────
+  Future<void> _loadFromIDB() async {
+    _store = {};
+
+    final txn = _db!.transaction('memory_store', idbModeReadOnly);
+    final storeObj = txn.objectStore('memory_store');
+
+    final keys = await storeObj.getAllKeys();
+
+    for (final k in keys) {
+      if (k is String && k.startsWith("$_fileName:")) {
+        final val = await storeObj.getObject(k);
+        if (val is String) {
+          final shortKey = k.substring(_fileName.length + 1);
+
+          try {
+            _store[shortKey] = jsonDecode(val);
+          } catch (_) {}
+        }
       }
     }
+
+    await txn.completed;
   }
 
-  Future<void> _saveWeb() async {
-    WebStorage.setItem(_fileName, jsonEncode(_store));
-  }
+// ───────────────────────────────────────────────────────────────
+// SAVE TO IDB
+// ───────────────────────────────────────────────────────────────
+  Future<void> _saveToIDB() async {
+    if (_db == null) return;
 
-  // ───────────────────────────────────────────────────────────────
-  // Native file storage
-  // ───────────────────────────────────────────────────────────────
-  Future<void> _loadFromFile() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/$_fileName');
+    final txn = _db!.transaction('memory_store', idbModeReadWrite);
+    final storeObj = txn.objectStore('memory_store');
 
-      if (await file.exists()) {
-        _store = jsonDecode(await file.readAsString());
-      } else {
-        _store = {};
+    // Delete old keys for this namespace
+    final keys = await storeObj.getAllKeys();
+    for (final k in keys) {
+      if (k is String && k.startsWith("$_fileName:")) {
+        await storeObj.delete(k);
       }
-    } catch (_) {
-      _store = {};
     }
+
+    // Write new values
+    for (final entry in _store.entries) {
+      final fullKey = "$_fileName:${entry.key}";
+      await storeObj.put(jsonEncode(entry.value), fullKey);
+    }
+
+    await txn.completed;
   }
 
-  Future<void> _saveFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$_fileName');
-    await file.writeAsString(jsonEncode(_store));
-  }
-
-  Future<void> _persist() async {
-    if (kIsWeb) {
-      await _saveWeb();
-    } else {
-      await _saveFile();
-    }
+  Future<void> _delaySave() async {
+    _saveDebounce?.cancel();
+    _saveDebounce =
+        Timer(const Duration(milliseconds: 300), () => _saveToIDB());
   }
 
   // ───────────────────────────────────────────────────────────────
-  // TTL Handling
+  // TTL (unchanged)
   // ───────────────────────────────────────────────────────────────
   bool _isExpired(MemoryModel model) {
     if (model.expiresAt == null) return false;
@@ -130,14 +154,13 @@ class Memory {
   }
 
   // ───────────────────────────────────────────────────────────────
-  // CRUD
+  // CRUD (unchanged)
   // ───────────────────────────────────────────────────────────────
   Future<MemoryModel?> readMemory(String name) async {
     if (!_store.containsKey(name)) return null;
 
     final model = MemoryModel.fromMap(_store[name]);
 
-    // TTL auto remove
     await _removeIfExpired(name, model);
     if (!_store.containsKey(name)) return null;
 
@@ -146,19 +169,19 @@ class Memory {
   }
 
   Future<List<MemoryModel>> readMemories() async {
-    final results = <MemoryModel>[];
+    final list = <MemoryModel>[];
 
     for (final key in _store.keys.toList()) {
       final model = MemoryModel.fromMap(_store[key]);
-      await _removeIfExpired(key, model);
 
+      await _removeIfExpired(key, model);
       if (_store.containsKey(key)) {
         model.data = _decrypt(model.data, _cipher);
-        results.add(model);
+        list.add(model);
       }
     }
 
-    return results;
+    return list;
   }
 
   Future<bool> upsertMemory(MemoryModel model) async {
@@ -167,16 +190,13 @@ class Memory {
     if (_store.containsKey(model.name)) {
       final old = MemoryModel.fromMap(_store[model.name]);
 
-      // TTL check
       await _removeIfExpired(model.name, old);
-      if (!_store.containsKey(model.name)) {
-        // will be treated as new
-      }
 
-      old.data = _encrypt(model.data.toString(), _cipher);
+      old.data = _encrypt(model.data, _cipher);
       old.updatedAt = DateTime.now().microsecondsSinceEpoch.toString();
       old.version = (old.version ?? 1) + 1;
       old.expiresAt = model.expiresAt;
+
       newModel = old;
     } else {
       newModel = MemoryModel(
@@ -211,110 +231,56 @@ class Memory {
   }
 
   // ───────────────────────────────────────────────────────────────
-  // TYPE HELPERS WITH TTL SUPPORT
+  // TYPE HELPERS (unchanged)
   // ───────────────────────────────────────────────────────────────
 
-  Future<bool> setString(String name, String value, {Duration? ttl}) async {
-    return upsertMemory(MemoryModel(
-      name: name,
-      data: value,
-      type: 'string',
-      expiresAt: ttl == null
-          ? null
-          : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-    ));
-  }
+  Future<bool> setString(String name, String value, {Duration? ttl}) =>
+      upsertMemory(_wrap(name, value, 'string', ttl));
 
-  Future<String?> getString(String name) async {
-    final m = await readMemory(name);
-    return m?.data;
-  }
+  Future<String?> getString(String name) async =>
+      (await readMemory(name))?.data;
 
-  Future<bool> setInt(String name, int value, {Duration? ttl}) async =>
-      upsertMemory(MemoryModel(
-        name: name,
-        data: value.toString(),
-        type: 'int',
-        expiresAt: ttl == null
-            ? null
-            : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-      ));
+  Future<bool> setInt(String name, int v, {Duration? ttl}) =>
+      upsertMemory(_wrap(name, v.toString(), 'int', ttl));
 
   Future<int?> getInt(String name) async {
     final m = await readMemory(name);
-    return m == null ? null : int.parse(m.data);
+    return m == null ? null : int.tryParse(m.data);
   }
 
-  Future<bool> setBool(String name, bool value, {Duration? ttl}) async =>
-      upsertMemory(MemoryModel(
-        name: name,
-        data: value.toString(),
-        type: 'bool',
-        expiresAt: ttl == null
-            ? null
-            : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-      ));
+  Future<bool> setBool(String name, bool v, {Duration? ttl}) =>
+      upsertMemory(_wrap(name, v.toString(), 'bool', ttl));
 
-  Future<bool?> getBool(String name) async {
-    final m = await readMemory(name);
-    return m?.data.toLowerCase() == 'true';
-  }
+  Future<bool?> getBool(String name) async =>
+      (await readMemory(name))?.data.toLowerCase() == 'true';
 
-  Future<bool> setDouble(String name, double value, {Duration? ttl}) async =>
-      upsertMemory(MemoryModel(
-        name: name,
-        data: value.toString(),
-        type: 'double',
-        expiresAt: ttl == null
-            ? null
-            : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-      ));
+  Future<bool> setDouble(String name, double v, {Duration? ttl}) =>
+      upsertMemory(_wrap(name, v.toString(), 'double', ttl));
 
   Future<double?> getDouble(String name) async {
     final m = await readMemory(name);
-    return m == null ? null : double.parse(m.data);
+    return m == null ? null : double.tryParse(m.data);
   }
 
-  Future<bool> setDateTime(String name, DateTime value, {Duration? ttl}) async =>
-      upsertMemory(MemoryModel(
-        name: name,
-        data: value.toIso8601String(),
-        type: 'datetime',
-        expiresAt: ttl == null
-            ? null
-            : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-      ));
+  Future<bool> setDateTime(String name, DateTime v, {Duration? ttl}) =>
+      upsertMemory(_wrap(name, v.toIso8601String(), 'datetime', ttl));
 
   Future<DateTime?> getDateTime(String name) async {
     final m = await readMemory(name);
-    return m == null ? null : DateTime.parse(m.data);
+    return m == null ? null : DateTime.tryParse(m.data);
   }
 
-  Future<bool> setMap(String name, Map<String, dynamic> value,
-      {Duration? ttl}) async =>
-      upsertMemory(MemoryModel(
-        name: name,
-        data: jsonEncode(value),
-        type: 'map',
-        expiresAt: ttl == null
-            ? null
-            : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-      ));
+  Future<bool> setMap(String name, Map<String, dynamic> v,
+      {Duration? ttl}) =>
+      upsertMemory(_wrap(name, jsonEncode(v), 'map', ttl));
 
   Future<Map<String, dynamic>?> getMap(String name) async {
     final m = await readMemory(name);
     return m == null ? null : jsonDecode(m.data);
   }
 
-  Future<bool> setList(String name, List value, {Duration? ttl}) async =>
-      upsertMemory(MemoryModel(
-        name: name,
-        data: jsonEncode(value),
-        type: 'list',
-        expiresAt: ttl == null
-            ? null
-            : (DateTime.now().add(ttl).microsecondsSinceEpoch.toString()),
-      ));
+  Future<bool> setList(String name, List v, {Duration? ttl}) =>
+      upsertMemory(_wrap(name, jsonEncode(v), 'list', ttl));
 
   Future<List?> getList(String name) async {
     final m = await readMemory(name);
@@ -322,7 +288,24 @@ class Memory {
   }
 
   // ───────────────────────────────────────────────────────────────
-  // ENCRYPT / DECRYPT
+  // WRAP (unchanged)
+  // ───────────────────────────────────────────────────────────────
+  MemoryModel _wrap(String n, String d, String t, Duration? ttl) {
+    return MemoryModel(
+      name: n,
+      data: d,
+      type: t,
+      expiresAt: ttl == null
+          ? null
+          : DateTime.now()
+          .add(ttl)
+          .microsecondsSinceEpoch
+          .toString(),
+    );
+  }
+
+  // ───────────────────────────────────────────────────────────────
+  // ENCRYPTION (unchanged)
   // ───────────────────────────────────────────────────────────────
   String _encrypt(String text, int key) =>
       String.fromCharCodes(text.codeUnits.map((c) => (c + key) % 65536));
