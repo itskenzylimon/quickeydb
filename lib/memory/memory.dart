@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:idb_shim/idb.dart';
+import 'package:quickeydb/memory/path_helper.dart';
 // import 'package:idb_shim/idb_browser.dart' as idb_browser;
 // import 'package:idb_shim/idb_io.dart' as idb_io;
 import 'memorymodel.dart';
@@ -48,13 +49,16 @@ class Memory {
 // INIT (FULL CROSS-PLATFORM IDB: Web/WASM/Native)
 // ───────────────────────────────────────────────────────────────
   Future<void> _init(String key) async {
-    _fileName = key;
+    // 1. Get the safe path using the helper
+    final String safePath = await getSafePath(key);
+    _fileName = safePath;
 
     if (kIsWeb) {
       // Web / WASM uses browser IndexedDB
       _idbFactory = idb_browser.getIdbFactory()!;
     } else {
       // Native (Android/iOS/macOS/Windows/Linux)
+      // Now _fileName contains the full absolute path
       _idbFactory = idb_io.getIdbFactoryPersistent(_fileName);
     }
 
