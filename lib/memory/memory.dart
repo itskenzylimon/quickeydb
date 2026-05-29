@@ -12,7 +12,6 @@ import 'package:idb_shim/idb_browser.dart' as idb_browser;
 import 'package:idb_shim/idb_io.dart' as idb_io;
 import 'package:flutter/foundation.dart';
 
-
 class Memory {
   static final Map<String, Memory> _instances = {};
 
@@ -76,7 +75,6 @@ class Memory {
     await _loadFromIDB();
     _initialized = true;
   }
-
 
   bool isMemoryInitialized() => _initialized;
   Future<bool> isMemoryEmpty() async => _store.isEmpty;
@@ -274,8 +272,7 @@ class Memory {
     return m == null ? null : DateTime.tryParse(m.data);
   }
 
-  Future<bool> setMap(String name, Map<String, dynamic> v,
-      {Duration? ttl}) =>
+  Future<bool> setMap(String name, Map<String, dynamic> v, {Duration? ttl}) =>
       upsertMemory(_wrap(name, jsonEncode(v), 'map', ttl));
 
   Future<Map<String, dynamic>?> getMap(String name) async {
@@ -301,10 +298,7 @@ class Memory {
       type: t,
       expiresAt: ttl == null
           ? null
-          : DateTime.now()
-          .add(ttl)
-          .microsecondsSinceEpoch
-          .toString(),
+          : DateTime.now().add(ttl).microsecondsSinceEpoch.toString(),
     );
   }
 
