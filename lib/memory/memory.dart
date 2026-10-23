@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:quickeydb/memory/path_helper.dart';
-// import 'package:idb_shim/idb_browser.dart' as idb_browser;
-// import 'package:idb_shim/idb_io.dart' as idb_io;
+import '../security/value_encryption.dart';
+import 'idb_factory_web.dart' if (dart.library.io) 'idb_factory_io.dart';
 import 'memorymodel.dart';
 
-import 'package:idb_shim/idb.dart';
-import 'package:idb_shim/idb_browser.dart' as idb_browser;
-import 'package:idb_shim/idb_io.dart' as idb_io;
-import 'package:flutter/foundation.dart';
-
 class Memory {
-  static final Map<String, Memory> _instances = {};
+  static final Map<String, Future<Memory>> _instances = {};
+  ValueEncryption? _encryption;
+  String? _instanceKey;
+  Future<void> _pendingSave = Future.value();
+  final Set<String> _dirty = {}, _deleted = {};
+  bool _closed = false;
+  Future<void>? _closing;
+  int _activeWrites = 0;
+  Completer<void>? _drained;
 
   final String _defaultMemoryKey = 'memory';
   final int _cipher = 254;
@@ -26,40 +28,53 @@ class Memory {
   late IdbFactory _idbFactory;
   Database? _db;
 
-  Timer? _saveDebounce;
-
 // ───────────────────────────────────────────────────────────────
 // Factory (unchanged)
 // ───────────────────────────────────────────────────────────────
-  Future<Memory> instance({String? memoryKey}) async {
+  Future<Memory> instance(
+      {String? memoryKey,
+      ValueEncryption? encryption,
+      String? storagePath}) async {
     final key = memoryKey ?? _defaultMemoryKey;
-
-    if (_instances.containsKey(key)) {
-      return _instances[key]!;
+    final pending = _instances.putIfAbsent(key, () async {
+      final mem = Memory().._encryption = encryption;
+      mem._instanceKey = key;
+      await mem._init(key, storagePath);
+      return mem;
+    });
+    try {
+      final mem = await pending;
+      if (storagePath != null && mem._fileName != storagePath) {
+        throw StateError('Namespace already opened at a different path.');
+      }
+      if (!identical(mem._encryption, encryption) &&
+          (mem._encryption == null ||
+              encryption == null ||
+              !await mem._encryption!.hasSameKey(encryption))) {
+        throw StateError(
+            'Namespace already opened with a different encryption configuration.');
+      }
+      return mem;
+    } catch (_) {
+      if (identical(_instances[key], pending)) {
+        // Do not evict a successfully opened namespace on a key mismatch.
+        final opened =
+            await pending.then<Memory?>((v) => v, onError: (_) => null);
+        if (opened == null) _instances.remove(key);
+      }
+      rethrow;
     }
-
-    final mem = Memory();
-    await mem._init(key);
-    _instances[key] = mem;
-    return mem;
   }
 
 // ───────────────────────────────────────────────────────────────
 // INIT (FULL CROSS-PLATFORM IDB: Web/WASM/Native)
 // ───────────────────────────────────────────────────────────────
-  Future<void> _init(String key) async {
+  Future<void> _init(String key, String? storagePath) async {
     // 1. Get the safe path using the helper
-    final String safePath = await getSafePath(key);
+    final String safePath = storagePath ?? await getSafePath(key);
     _fileName = safePath;
 
-    if (kIsWeb) {
-      // Web / WASM uses browser IndexedDB
-      _idbFactory = idb_browser.getIdbFactory()!;
-    } else {
-      // Native (Android/iOS/macOS/Windows/Linux)
-      // Now _fileName contains the full absolute path
-      _idbFactory = idb_io.getIdbFactoryPersistent(_fileName);
-    }
+    _idbFactory = memoryFactory(_fileName);
 
     _db = await _idbFactory.open(
       "quickey_memory_db",
@@ -72,11 +87,29 @@ class Memory {
       },
     );
 
-    await _loadFromIDB();
-    _initialized = true;
+    try {
+      await _loadFromIDB();
+      for (final entry in _store.values) {
+        final model =
+            MemoryModel.fromMap(Map<String, dynamic>.from(entry as Map));
+        if (model.data.startsWith('qdb:aesgcm:')) {
+          await _decode(model.data, model.name);
+        }
+      }
+      _initialized = true;
+    } catch (_) {
+      _db?.close();
+      rethrow;
+    }
   }
 
-  bool isMemoryInitialized() => _initialized;
+  void _checkOpen() {
+    if (!_initialized || _closed || _closing != null) {
+      throw StateError('Memory is not open.');
+    }
+  }
+
+  bool isMemoryInitialized() => _initialized && !_closed;
   Future<bool> isMemoryEmpty() async => _store.isEmpty;
 
 // ───────────────────────────────────────────────────────────────
@@ -98,7 +131,9 @@ class Memory {
 
           try {
             _store[shortKey] = jsonDecode(val);
-          } catch (_) {}
+          } catch (error) {
+            throw FormatException('Corrupt Memory entry: $shortKey', error);
+          }
         }
       }
     }
@@ -109,33 +144,89 @@ class Memory {
 // ───────────────────────────────────────────────────────────────
 // SAVE TO IDB
 // ───────────────────────────────────────────────────────────────
-  Future<void> _saveToIDB() async {
-    if (_db == null) return;
-
-    final txn = _db!.transaction('memory_store', idbModeReadWrite);
-    final storeObj = txn.objectStore('memory_store');
-
-    // Delete old keys for this namespace
-    final keys = await storeObj.getAllKeys();
-    for (final k in keys) {
-      if (k is String && k.startsWith("$_fileName:")) {
-        await storeObj.delete(k);
-      }
-    }
-
-    // Write new values
-    for (final entry in _store.entries) {
-      final fullKey = "$_fileName:${entry.key}";
-      await storeObj.put(jsonEncode(entry.value), fullKey);
-    }
-
-    await txn.completed;
+  /// Completes only after pending values are durable in the IDB transaction.
+  Future<void> flush() {
+    if (_closed) throw StateError('Memory is closed.');
+    final operation = _pendingSave.then((_) => _saveToIDB());
+    _pendingSave =
+        operation.then<void>((_) {}, onError: (Object _, StackTrace __) {});
+    return operation;
   }
 
-  Future<void> _delaySave() async {
-    _saveDebounce?.cancel();
-    _saveDebounce =
-        Timer(const Duration(milliseconds: 300), () => _saveToIDB());
+  Future<void> _saveToIDB() async {
+    if (_db == null || (_dirty.isEmpty && _deleted.isEmpty)) return;
+    final changed = {for (final k in _dirty) k: jsonEncode(_store[k])};
+    final deleted = Set<String>.from(_deleted);
+    _dirty.clear();
+    _deleted.clear();
+    try {
+      final txn = _db!.transaction('memory_store', idbModeReadWrite);
+      final store = txn.objectStore('memory_store');
+      for (final key in deleted) {
+        await store.delete('$_fileName:$key');
+      }
+      for (final entry in changed.entries) {
+        await store.put(entry.value, '$_fileName:${entry.key}');
+      }
+      await txn.completed;
+    } catch (_) {
+      for (final key in changed.keys) {
+        if (_store.containsKey(key)) _dirty.add(key);
+      }
+      for (final key in deleted) {
+        if (!_store.containsKey(key)) _deleted.add(key);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _delaySave() => flush();
+
+  /// Rewrites legacy shifted values using the configured authenticated cipher.
+  Future<void> encryptExisting() async {
+    _checkOpen();
+    if (_encryption == null) throw StateError('Encryption key required.');
+    final entries = await readMemories();
+    for (final entry in entries) {
+      await upsertMemory(entry);
+    }
+    await flush();
+  }
+
+  Future<void> close() {
+    if (_closed) return Future.value();
+    return _closing ??= _finishClose().whenComplete(() {
+      if (!_closed) _closing = null;
+    });
+  }
+
+  Future<void> _finishClose() async {
+    if (_activeWrites > 0) {
+      _drained ??= Completer<void>();
+      await _drained!.future;
+    }
+    await flush();
+    _db?.close();
+    _closed = true;
+    _initialized = false;
+    _instances.remove(_instanceKey);
+  }
+
+  Future<String> _encode(String data, String name) async => _encryption == null
+      ? _encrypt(data, _cipher)
+      : await _encryption!.encrypt(data, context: 'memory:$_fileName:$name');
+
+  Future<String> _decode(String data, String name) async {
+    if (data.startsWith('qdb:aesgcm:')) {
+      final cipher =
+          _encryption ?? (throw StateError('Encryption key required.'));
+      return await cipher.decrypt(data, context: 'memory:$_fileName:$name')
+          as String;
+    }
+    if (_encryption?.allowPlaintextReads == false) {
+      throw StateError('Legacy Memory value requires migration permission.');
+    }
+    return _decrypt(data, _cipher);
   }
 
   // ───────────────────────────────────────────────────────────────
@@ -151,6 +242,8 @@ class Memory {
   Future<void> _removeIfExpired(String key, MemoryModel model) async {
     if (_isExpired(model)) {
       _store.remove(key);
+      _dirty.remove(key);
+      _deleted.add(key);
       await _delaySave();
     }
   }
@@ -159,6 +252,7 @@ class Memory {
   // CRUD (unchanged)
   // ───────────────────────────────────────────────────────────────
   Future<MemoryModel?> readMemory(String name) async {
+    _checkOpen();
     if (!_store.containsKey(name)) return null;
 
     final model = MemoryModel.fromMap(_store[name]);
@@ -166,11 +260,12 @@ class Memory {
     await _removeIfExpired(name, model);
     if (!_store.containsKey(name)) return null;
 
-    model.data = _decrypt(model.data, _cipher);
+    model.data = await _decode(model.data, model.name);
     return model;
   }
 
   Future<List<MemoryModel>> readMemories() async {
+    _checkOpen();
     final list = <MemoryModel>[];
 
     for (final key in _store.keys.toList()) {
@@ -178,7 +273,7 @@ class Memory {
 
       await _removeIfExpired(key, model);
       if (_store.containsKey(key)) {
-        model.data = _decrypt(model.data, _cipher);
+        model.data = await _decode(model.data, model.name);
         list.add(model);
       }
     }
@@ -187,43 +282,65 @@ class Memory {
   }
 
   Future<bool> upsertMemory(MemoryModel model) async {
-    MemoryModel newModel;
+    _checkOpen();
+    _activeWrites++;
+    try {
+      MemoryModel newModel;
 
-    if (_store.containsKey(model.name)) {
-      final old = MemoryModel.fromMap(_store[model.name]);
+      final previous = _store[model.name];
+      if (previous != null) {
+        await _removeIfExpired(model.name, MemoryModel.fromMap(previous));
+      }
+      if (_store.containsKey(model.name)) {
+        final old = MemoryModel.fromMap(_store[model.name]);
 
-      await _removeIfExpired(model.name, old);
+        await _removeIfExpired(model.name, old);
 
-      old.data = _encrypt(model.data, _cipher);
-      old.updatedAt = DateTime.now().microsecondsSinceEpoch.toString();
-      old.version = (old.version ?? 1) + 1;
-      old.expiresAt = model.expiresAt;
+        old.data = await _encode(model.data, model.name);
+        old.updatedAt = DateTime.now().microsecondsSinceEpoch.toString();
+        old.version = (old.version ?? 1) + 1;
+        old.expiresAt = model.expiresAt;
 
-      newModel = old;
-    } else {
-      newModel = MemoryModel(
-        name: model.name,
-        data: _encrypt(model.data, _cipher),
-        type: model.type,
-        version: 1,
-        createdAt: DateTime.now().microsecondsSinceEpoch.toString(),
-        expiresAt: model.expiresAt,
-      );
+        newModel = old;
+      } else {
+        newModel = MemoryModel(
+          name: model.name,
+          data: await _encode(model.data, model.name),
+          type: model.type,
+          version: 1,
+          createdAt: DateTime.now().microsecondsSinceEpoch.toString(),
+          expiresAt: model.expiresAt,
+        );
+      }
+
+      _store[model.name] = newModel.toMap();
+      _dirty.add(model.name);
+      _deleted.remove(model.name);
+      await _delaySave();
+      return true;
+    } finally {
+      _activeWrites--;
+      if (_activeWrites == 0 && _drained != null) {
+        _drained!.complete();
+        _drained = null;
+      }
     }
-
-    _store[model.name] = newModel.toMap();
-    await _delaySave();
-    return true;
   }
 
   Future<bool?> deleteMemory(String name) async {
+    _checkOpen();
     if (!_store.containsKey(name)) return null;
     _store.remove(name);
+    _dirty.remove(name);
+    _deleted.add(name);
     await _delaySave();
     return true;
   }
 
   Future<void> clear() async {
+    _checkOpen();
+    _deleted.addAll(_store.keys);
+    _dirty.clear();
     _store.clear();
     await _delaySave();
   }
@@ -253,8 +370,10 @@ class Memory {
   Future<bool> setBool(String name, bool v, {Duration? ttl}) =>
       upsertMemory(_wrap(name, v.toString(), 'bool', ttl));
 
-  Future<bool?> getBool(String name) async =>
-      (await readMemory(name))?.data.toLowerCase() == 'true';
+  Future<bool?> getBool(String name) async {
+    final model = await readMemory(name);
+    return model == null ? null : model.data.toLowerCase() == 'true';
+  }
 
   Future<bool> setDouble(String name, double v, {Duration? ttl}) =>
       upsertMemory(_wrap(name, v.toString(), 'double', ttl));

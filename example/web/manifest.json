@@ -1,11 +1,11 @@
 {
-  "name": "example",
-  "short_name": "example",
+  "name": "QuickeyDB Gallery",
+  "short_name": "QuickeyDB",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0175C2",
-  "theme_color": "#0175C2",
-  "description": "A new Flutter project.",
+  "background_color": "#FFF8F5",
+  "theme_color": "#EC2182",
+  "description": "QuickeyDB CRUD, queries, encryption and SQL-to-DAO examples",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

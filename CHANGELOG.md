@@ -1,4 +1,16 @@
-## [(1.2.0+8]
+## 3.0.0
+
+- Add tested keyset paging and atomic inbox recipes, deeper workflow docs and recursive generated/local database ignores.
+- **Breaking safeguards:** reject filtered `destroyAll` and unsafe automatic migrations. See [migration notes](doc/MIGRATING_TO_3.md).
+- Fix isolated queries, projections, relations, nullable keys and atomic bulk writes; preserve legacy paths, APIs and REPLACE defaults.
+- Add scoped queries, explicit transactions/migrations and SQL-to-DAO generation.
+- Add private storage, AES-GCM value encryption, SQLCipher factory integration and durable encrypted Memory with TTL.
+- Add automatic browser SQLite/WASM selection and opt-in redacted debug SQL diagnostics.
+- Expand the Material gallery, tests and guides; add the Q logo and pink/orange/yellow theme.
+
+Requires Dart 3.9 / Flutter 3.35+. Upgrades from published 1.2.0+8; version 2.0.0 is intentionally skipped.
+
+## 1.2.0+8
 
 - Fix migration of new tables in schema.
 - Fixed android dbName not working.
@@ -43,4 +55,3 @@
 ## [1.0.0+1]
 
 - initial release
-- current version (1.0.0+1)

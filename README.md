@@ -1,994 +1,584 @@
-<p align="center">
-    <img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/logo/QuickeyDBV1.png"/>
-</p>
+# QuickeyDB
 
-<h1 align="center">Quickey Database</h1>
-<h3 align="center">FAST Object-Relational Mapping SQLite wrapper.</h3>
+<p align="center"><img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/quickeydb.png" width="128" alt="QuickeyDB logo"></p>
+
+[![pub package](https://img.shields.io/pub/v/quickeydb.svg)](https://pub.dev/packages/quickeydb)
+
+**3.0.0 release preparation** · [What changed](https://github.com/itskenzylimon/quickeydb/blob/main/CHANGELOG.md) ·
+[Upgrade from 1.2.0+8](https://github.com/itskenzylimon/quickeydb/blob/main/doc/MIGRATING_TO_3.md) · [Release checks](https://github.com/itskenzylimon/quickeydb/blob/main/doc/RELEASING.md)
+
+**Local SQLite data for Flutter — SQL schemas, Dart DAOs, fluent queries.**
+
+[Start learning](#new-to-sql-or-quickeydb) · [SQL → DAO](#generate-ready-daos-from-sql) ·
+[Reactive example gallery](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md) · [Test map](https://github.com/itskenzylimon/quickeydb/blob/main/test/README.md) · [In-depth workflows](https://github.com/itskenzylimon/quickeydb/blob/main/doc/FEATURE_RECIPES.md) ·
+[Compatibility notes](https://github.com/itskenzylimon/quickeydb/blob/main/CHANGELOG.md)
+
+| Build with | Use it for |
+| --- | --- |
+| SQL + a DAO | Tables, records and model conversion |
+| Independent query scopes | Bound filters, ordering, pagination and projections |
+| Transactions and relations | Atomic work and connected records |
+| Selected-column AES-GCM | Protecting configured values with an application-managed key |
+| Memory | Separate named values with optional encryption and TTL |
+| SQL-to-DAO generator | Turning table definitions into reviewable Dart source |
+
+> Explore the [19-section reactive gallery](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md), styled like the
+> Activity example, now using Activity state and routes: inline API/view/model
+> code, result terminals, live CRUD, pagination, aggregates, conflict/bulk rollback probes,
+> encrypted Memory, SQL generation and migration planning, plus eight application
+> recipes, complete DAO samples and a practical integration checklist.
 
 
+QuickeyDB is a Flutter SQLite ORM with typed model converters, fluent queries,
+relationships, transactions, and optional authenticated encryption. Existing
+initialization calls, DAO subclasses, default database paths, integer sum API,
+and REPLACE-on-insert behavior remain available. Version 3.0.0 requires
+**Dart 3.9 / Flutter 3.35 or newer**, matching the minimum declared IDB dependency.
 
-[QuickeyDB](https://github.com/itskenzylimon/quickeydb) is a simple ORM inspired from [ActiveRecord](https://github.com/rails/rails/tree/master/activerecord), built on-top of [Sqflite](https://pub.dev/packages/sqflite).
+This checkout includes the repairs tracked in [Observations.md](https://github.com/itskenzylimon/quickeydb/blob/main/Observations.md).
+The ORM selects native Sqflite/FFI or browser SQLite/WASM automatically.
+`quickeywebdb.dart` remains a compatibility import of the same API. Memory's IDB
+backend is separate.
 
-QuickeyDB Object-Relational Mapping (ORM) uses a coding technique with function descriptors connected to a relational database.
+## Gallery previews
 
-Apart from data access technique, QuickeyDB can benefit a developer in many ways including
+[![QuickeyDB overview](https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/example/gallery-preview.jpg)](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md)
+[![CRUD code and results](https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/example/gallery-source-preview.jpg)](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md)
 
-* Requires Simplified development and Maintenance: this is because ORMs automate the object-to-table and table-to-object conversion
-* QuickeyDB allow data caching /indexing improving database performance
-* You get to write better queries in a Dart, Most developers are not the best at writing SQL statements.
-* Lastly, QuickeyDB has incredibly lower code lines compared to embedded SQL Queries.
+[![Tested workflow examples](https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/example/gallery-workflows.jpg)](https://github.com/itskenzylimon/quickeydb/blob/main/doc/FEATURE_RECIPES.md)
 
-## Platforms
+## Package example and branding
 
-| Platform 	| Supported? 	               |
-|----------	|----------------------------|
-| Web      	| ❎ Coming Soon        	     |
-| MacOS    	| ✅ Tried & Tested         	 |
-| Windows  	| ✅ Tried & Tested         	               |
-| Linux    	| ✅ Tried & Tested         	      |
-| Android  	| ✅ Tried & Tested         	      |
-| iOS      	| ✅ Tried & Tested         	      |
+The [standalone example](https://github.com/itskenzylimon/quickeydb/blob/main/example/example.md) demonstrates SQL-to-DAO generation
+using only QuickeyDB. The [full gallery](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md) includes CRUD, queries,
+encryption and Memory; its repository checkout also needs the sibling Activity
+package. Use `flutter pub get --no-example` for package-only development.
 
+The supplied Q logo uses pink, orange and yellow. The gallery defaults to pink,
+with matching warm surfaces and selectable orange/yellow accents.
 
-1. [Introduction to QuickeyDB](#introduction-to-quickeydb)
-2. [Getting Started with QuickeyDB](#getting-started-with-quickeydb)
-   1. [Add QuickeyDB dependency](#1-add-quickeydb-dependency)
-   2. [Create Models](#2-create-user-model-and-task-model)
-   3. [Create a Schema Dart File](#3-create-a-schema-dart-file)
-   4. [Initialize database](#4-initialize-database)
-   5. [Simple Example](#5-simple-example)
-3. [Data Access Objects](#data-access-objects)
-    1. [Building Queries](#building-queries)
-    2. [Finder Queries](#finder-queries)
-    3. [Data Persistence](#data-persistence)
-    4. [Calculations Methods](#calculations-methods)
-    5. [Helper Methods](#helper-methods)
-    6. [Custom SQL Queries](#custom-sql-queries)
-4. [Data Tables Relations](#data-tables-relations)
-   1. [Belongs To](#belongs-to)
-   2. [Has One](#has-one)
-   3. [Has Many](#has-many)
-5. [Database Migration](#database-migration)
-6. [Transaction](#transaction)
-7. [Batch support](#batch_support)
-8. [Memory Cache](#memory_cache)
-9. [Import Local Database](#import-local-databases)
-10. [Persist Data Storage](#persist-data-storage)
-11. [Cool Color Logger](#cool-color-logger)
-12. [Platform setup](#platform-setup)
-13. [Taskan Crud Example](#taskan-crud-example)
-14. [Features Request & Bug Reports](#features-request-&-bug-reports)
-15. [Contributing](#contributing)
-16. [Articles and videos](#articles-and-videos)
+## New to SQL or QuickeyDB?
 
-# Introduction to QuickeyDB:
+A **table** groups records with the same columns. A **row** is one record; its
+**primary key** identifies it. SQLite is the database engine running locally in
+your app. SQL describes its schema and queries. QuickeyDB adds a Dart layer:
 
-_QuickeyDB_ is an ORM inspired form [ActiveRecord](https://github.com/rails/rails/tree/master/activerecord) and depends on [_CREATE TABLE_](https://sqlite.org/lang_createtable.html) command which uses _Regular Expression_ ([RegExp](https://en.wikipedia.org/wiki/Regular_expression)) to analysis table defentions:
+```text
+CREATE TABLE SQL → DataAccessObject + Converter → query() → Dart results
+```
 
-- Table name.
-- Columns definition.
-- Primary key.
-- Foreign keys.
+1. Describe a table with a single primary key. Use `INTEGER PRIMARY KEY
+   AUTOINCREMENT` when SQLite should assign IDs.
+2. Create a DAO subclass, or generate one using the SQL-to-DAO API below.
+3. Register DAO instances in `QuickeyDB.initialize` and keep one owner for the
+   database handle. Retrieve a registered DAO with `database.get<YourDao>()!`.
+4. Create records, query them, update using their ID, and delete deliberately.
+   A `Converter` connects maps to typed domain models when you need them.
+5. Add validation, indexes, explicit migrations and key management for your app.
+   The gallery’s **Start here** and **Tips & points** tabs explain these concepts.
 
-Note: _QuickeyDB_ is a runtime library so it dosen't depend on heavily generate code.
+QuickeyDB is local persistence, not a hosted database or automatic cloud sync.
+SQLite has no separate Boolean storage class: `INTEGER` values `0` and `1` are a
+common choice. Make your model converters explicit about date/time and other
+application-specific representations.
 
-# Getting Started with QuickeyDB
+## Generate ready DAOs from SQL
 
-### 1. Add QuickeyDB dependency
+The public `SqlDaoGenerator` lives in `lib/codegen/sql_dao_generator.dart` and is
+exported by `package:quickeydb/quickeydb.dart`. It needs no `build_runner` and never
+executes the input or changes a database.
+
+```dart
+import 'package:quickeydb/quickeydb.dart';
+
+final generated = const SqlDaoGenerator().generate('''
+CREATE TABLE tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  done INTEGER NOT NULL DEFAULT 0
+);
+''');
+
+final dartSource = generated.source;      // class TasksDao extends ...
+final registration = generated.registration; // [TasksDao()]
+final table = generated.tables.first;
+// table.tableName, table.className, table.sql, table.schema
+```
+
+Save `dartSource` to a Dart file under your app’s `lib/`, format it, and import
+that file. The generator returns strings; it does not write files for you. Each
+table gets its own named DAO class, so multiple tables can be registered by type.
+Generated DAOs use `Map<String?, dynamic>` and a complete map converter:
+
+```dart
+// Import your generated tasks_dao.dart first.
+final database = await QuickeyDB.initialize(
+  dbName: 'my_app', dbVersion: 1,
+  dataAccessObjects: [TasksDao()],
+  conflictAlgorithm: ConflictAlgorithm.abort,
+);
+final tasks = database.get<TasksDao>()!;
+final id = await tasks.insert({'title': 'Learn SQL'});
+final rows = await tasks.query().where({'done': 0}).toMap();
+await tasks.query().where({'id': id}).updateAll({'done': 1});
+```
+
+| Input | Behavior |
+| --- | --- |
+| One or more ordinary `CREATE TABLE` statements | Produces one named DAO per table, in input order |
+| Optional final semicolon, SQL comments and quoted string values | Split without treating punctuation inside strings as statements |
+| Table names | Letters, digits and underscores, starting with a letter; SQLite/internal names and name collisions are rejected |
+| Primary key | One per table is required; composite keys are unsupported |
+| Foreign keys | Preserved in SQL; configure `foreignKeys: true` when opening for enforcement, and declare DAO eager-loading relations separately |
+| Indexes, triggers, views, data changes and table options | Rejected with `FormatException`; apply them separately through reviewed setup/migration code |
+
+This is a schema-to-source helper for the package’s supported table metadata,
+not a complete SQLite syntax validator. Review generated source and run database
+tests before shipping. It does not infer typed models, encryption policies,
+relations or migrations. Decide which columns to encrypt before opening a new
+database; adding encryption to existing values needs the explicit migration
+shown later in this README. Never execute untrusted SQL just because source was
+generated from it.
+
+## Platform setup
+
+See the [platform and console guide](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md#platform-setup-and-console-diagnostics)
+for Xcode first-launch components, CocoaPods, the example’s single Android Kotlin
+DSL configuration, secure-storage host dependencies, and Flutter’s upstream web
+hot-restart loader fix. Package tests and native builds should run sequentially
+when they share a checkout’s generated native assets.
+
+## Run the example in Chrome
+
+Run from **example/**; the package directory itself has no lib/main.dart:
+
+```sh
+cd plugins/external/quickeydb/example
+flutter pub get
+dart run tool/setup_web.dart
+flutter run -d chrome --web-port 8080
+```
+
+The checked-in worker/WASM assets are ready for the resolved browser backend.
+Re-run setup after changing SQLite/backend dependency versions. The setup script
+compiles the official worker directly and downloads the matching SQLite WASM,
+avoiding the upstream build-runner setup failure seen on the current SDK.
+The browser backend requires one connection per persistent database; initialization
+sets that option automatically. Storage persists in IndexedDB by origin, so keep
+the hostname and port fixed. Use localhost or HTTPS for browser secure storage.
+
+`privateStorage` is a virtual namespace on web; it cannot hide data from browser
+developer tools or apply OS file permissions. AES-GCM still protects selected
+values. Web key storage is origin-bound browser storage, not native Keychain or
+Keystore, and cannot protect against malicious scripts running in that origin.
+SQLCipher full-file encryption and asset DB import remain native-only. JavaScript
+Chrome builds are tested; the secure-storage plugin does not yet support a full
+Dart/Wasm application build.
+
+## Setup and a complete example
+
+Until 3.0.0 is published, use `quickeydb: {path: ../quickeydb}` with this
+checkout. The release constraint below becomes available after publication.
+
+For the 3.0.0 release, add the dependency and run `flutter pub get`:
 
 ```yaml
 dependencies:
-  quickeydb: ^x.x.x
+  flutter:
+    sdk: flutter
+  quickeydb: ^3.0.0
 ```
 
-### 2. Create User Model and Task Model
+A converter's `encode` reads a row into a model, `decode` writes a model with
+optional nested relationships, and `decodeTable` writes just its table columns.
+This is a complete `lib/main.dart` example using a short-lived in-memory DB:
 
 ```dart
-// Database/Models/user.dart
-
-import 'task.dart';
-
-class User {
-   int? id;
-   String? name;
-   String? email;
-   String? phone;
-   int? age;
-   Task? task;
-
-   User({
-      this.id,
-      required this.name,
-      required this.email,
-      required this.age,
-      this.phone,
-      this.task
-   });
-
-   Map<String, dynamic> toMap() => {
-      'id': id,
-      'name': name,
-      'email': email,
-      'age': age,
-      'phone': phone,
-      'task': task != null ? task!.toMap() : null,
-   };
-
-   Map<String, dynamic> toTableMap() => {
-      'id': id,
-      'name': name,
-      'email': email,
-      'age': age,
-      'phone': phone,
-   };
-
-   User.fromMap(Map<String?, dynamic> map)
-           : id = map['id'],
-              name = map['name'],
-              email = map['email'],
-              age = map['age'],
-              phone = map['phone'],
-              task = map['task'] != null ? Task.fromMap(map['task']) : null;
-
-}
-
-
-```
-
-```dart
-// Database/Models/task.dart
-
-import 'user.dart';
+import 'package:flutter/material.dart';
+import 'package:quickeydb/quickeydb.dart';
 
 class Task {
-   int? id;
-   String name;
-   String body;
-   int? level;
-   User? user;
-
-   Task({
-      this.id,
-      required this.name,
-      required this.body,
-      required this.level,
-      this.user,
-   });
-
-   Task.fromMap(Map<String?, dynamic> map)
-           : id = map['id'],
-              name = map['name'],
-              body = map['body'],
-              level = map['level'],
-              user = map['user'] != null ? User.fromMap(map['user']) : null;
-
-   Map<String, dynamic> toMap() => {
-      'id': id,
-      'name': name,
-      'body': body,
-      'level': level,
-      'user': user != null ? user?.toMap() : null,
-   };
-
-   Map<String, dynamic> toTableMap() => {
-      'id': id,
-      'name': name,
-      'body': body,
-      'level': level,
-   };
-
+  const Task({this.id, required this.title});
+  final int? id;
+  final String title;
+  factory Task.fromMap(Map<String?, dynamic> map) =>
+      Task(id: map['id'] as int?, title: map['title'] as String);
+  Map<String, Object?> toMap() => {'id': id, 'title': title};
 }
 
+class TasksDao extends DataAccessObject<Task> {
+  TasksDao() : super('''
+CREATE TABLE tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL
+)
+''', converter: Converter<Task?>(
+    encode: Task.fromMap,
+    decode: (task) => task!.toMap(),
+    decodeTable: (task) => task!.toMap(),
+  ));
+}
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = await QuickeyDB.initialize(
+    dbName: 'demo', dbVersion: 1,
+    dataAccessObjects: [TasksDao()], persist: false,
+    conflictAlgorithm: ConflictAlgorithm.abort,
+  );
+  late String message;
+  try {
+    final tasks = db.get<TasksDao>()!;
+    final id = await tasks.create(const Task(title: 'Learn QuickeyDB'));
+    message = (await tasks.find(id))!.title;
+  } finally {
+    await db.close();
+  }
+  runApp(MaterialApp(home: Scaffold(body: Center(child: Text(message)))));
+}
 ```
 
-### 3. Create a Schema Dart File
+Desktop FFI initialization is automatic. `persist: false` now uses an in-memory
+DB on mobile and desktop. In an actual app, keep the database open for its owner
+and await pending operations before `close()`. Initialize once, outside `build`.
+Call `db.get<TasksDao>()` or `db<TasksDao>()` for the registered DAO instance.
+
+## Queries and isolated scopes
+
+The old fluent API still works. Use `query()` when building independent scopes:
 
 ```dart
-// Database/schema.dart
+Future<List<Task?>> search(TasksDao tasks, String title) async {
+  return tasks.query()
+    .where({'title': title})
+    .order(['id'], 'DESC')
+    .limit(20).offset(0)
+    .toList();
+}
+```
 
+Terminal methods consume query state **before awaiting**, including errors and
+aggregates. You no longer need manual `clear()` after every query. The original
+fluent builder still mutates itself while a chain is being constructed; use
+separate `query()` instances for independent chains or concurrent callers.
+
+| API | Behavior |
+| --- | --- |
+| `where({'title': value})` | Bound equality; null becomes `IS NULL`. |
+| `where({'id >= ?': value})` | Explicit SQL operator with a bound value. |
+| `where({'id IN (?, ?)': [1, 2]})` | Bound list values, flattened to placeholders. |
+| `or({...})`, `not({...})` | OR and negated condition groups; equality shorthand works. |
+| `find(id)`, `findBy(map)`, `first`, `last` | Nullable model; explicitly order predictable first/last results. |
+| `all`, `toList()`, `take(n)` | `List<T?>`; converters may return null. |
+| `toMap()` | Row maps with requested includes/joins. |
+| `select(['title']).toMap()` | Strict projection; excludes unrequested columns. |
+| `group([...])`, `having(sql)` | GROUP BY / raw HAVING; HAVING requires grouping. |
+
+Keys, operator fragments, order/group expressions, and HAVING are trusted SQL
+provided by your application. Bind user values; never interpolate them into SQL
+fragments. Boolean groups follow SQL AND/OR precedence. OFFSET requires LIMIT;
+negative limits/offsets throw. Empty IN lists and arbitrary expression parsing
+are not normalized by the API.
+
+## Writes, transactions, and conflicts
+
+- `create(model)` / `insert(map)` return the primary-key value.
+- `createAll` / `insertAll` run in one transaction and roll back on failure.
+- `update(model)` uses the model's primary key; `updateAll(map)` uses pending filters.
+- `delete(model)` / `destroy(id)` delete by key; missing model keys are rejected.
+- `where(...).deleteWhere()` deletes matching rows and requires a filter.
+- `destroyAll()` retains its legacy explicit whole-table meaning. Calling it with
+  filters now throws rather than silently deleting unrelated rows.
+
+Generated IDs are assigned to mutable insert maps for legacy callers. Immutable
+input maps also work, and nested payload processing uses copies. Returned IDs do
+not update immutable model objects; read the model again with `find(id)`.
+
+Legacy insert conflict behavior remains REPLACE. New apps should choose
+`conflictAlgorithm: ConflictAlgorithm.abort` on initialization or use the DAO's
+`insertConflictAlgorithm` override. REPLACE may delete a conflicting row; it is
+not equivalent to a conventional UPDATE.
+
+DAO calls participate in `QuickeyDBImpl.transaction` through an async-local executor:
+
+```dart
+Future<void> renameTasks(QuickeyDBImpl db, TasksDao tasks) async {
+  await db.transaction(() async {
+    await tasks.where({'id': 1}).updateAll({'title': 'First'});
+    await tasks.where({'id': 2}).updateAll({'title': 'Second'});
+  });
+}
+```
+
+Await every operation inside the callback; do not schedule work to outlive it.
+For the underlying `db.database!.transaction((txn) async {...})`, use only `txn`
+inside the callback. The wrapper's `db.executor` exposes its active executor for
+custom SQL inside `db.transaction`. This keeps transaction ownership explicit.
+
+## Aggregates and projections
+
+`count()` and `ids` consume their query scope. `isEmpty`/`isNotEmpty` now have the
+correct meanings. `pluck(['title'])` returns a flat list; multiple columns return
+row-value lists. `pick(['title'])` returns `[value]`, or `[]` if there is no row.
+
+`maximum` and `minimum` preserve SQLite's value type. `average` returns `double?`.
+The legacy `sum` returns `int?`; a fractional result throws with guidance to use
+the new `sumNumber(column)` (`num?`). This avoids silently truncating real values.
+Existence and emptiness checks stop after the first matching row without model
+conversion. Use projections for partial-row maps; a model converter requiring other fields
+cannot reconstruct a complete model from an incomplete projection.
+
+`toSql()` and the SQL builder's `fullSql` are diagnostics, not executable SQL.
+They expose argument counts rather than secret bound values. Query logging is
+optional with `debugging: true`; values and encryption keys are not printed by
+the package's diagnostic helpers.
+
+## Less-visible private files
+
+`privateStorage: true` opts into an application-support `.quickeydb` subdirectory.
+With an explicit `dbPath`, that subdirectory is created beneath the supplied
+directory. On macOS/Linux, the directory is restricted to mode 0700 and the main
+file to 0600. Mobile relies on the application sandbox. Windows uses the app's
+support location; dot naming alone does not provide Windows ACL protection.
+
+Default paths remain unchanged so old databases reopen. **Enabling private storage
+changes the location; it does not move your existing database.** Plan an explicit,
+backed-up relocation after closing all handles. `dbPath` consistently means a
+directory; mobile now honors it. If an old mobile app supplied a path that used to
+be ignored, its data remains at the old default location: locate that file before
+switching paths. Asset import now reads/writes/opens the same resolved filename.
+Existing database-name suffix behavior (`'$dbName.db'`) is retained.
+
+Hidden locations and permissions reduce casual discovery; encryption protects
+content. They serve different purposes.
+
+## AES-GCM for sensitive values
+
+Use a 32-byte random key stored separately in platform secure storage. A key is
+never generated implicitly by the ORM or written beside the database. The
+[notes example](https://github.com/itskenzylimon/quickeydb/blob/main/example/lib/main.dart) generates a key once and retains it in
+`flutter_secure_storage`, with platform setup in [example/README.md](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md).
+
+To protect selected columns, add `encryptedColumns: {'body'}` to a DAO constructor
+and supply `valueEncryption` on initialization:
+
+```dart
+Future<QuickeyDBImpl> openProtectedDatabase(
+  List<int> keyFromSecureStorage, List<DataAccessObject> daos,
+) => QuickeyDB.initialize(
+  dbName: 'protected', dbVersion: 1, dataAccessObjects: daos,
+  privateStorage: true,
+  valueEncryption: ValueEncryption(keyFromSecureStorage),
+  conflictAlgorithm: ConflictAlgorithm.abort,
+);
+```
+
+`ValueEncryption.generateKey()` creates suitable random bytes. Values use
+AES-256-GCM with fresh nonces, authentication tags, a versioned envelope, and
+table/column context binding. Equal plaintext values do not produce equal stored
+ciphertext. A key verifier rejects missing/wrong keys on reopen before migrations.
+Malformed or modified ciphertext throws; there is no fallback to plaintext when
+a ciphertext envelope fails authentication.
+
+- Protected values must be JSON-encodable; columns should store encrypted TEXT values and must not be primary,
+  local foreign-key, or individually UNIQUE columns.
+- Protected values are decrypted by the DAO, but randomized encryption cannot
+  support SQL equality/range search, joins, ordering, or numeric aggregation on
+  those values. Filter/sort after decryption, or use full-file encryption below.
+- IDs, unprotected fields, schema, row counts, nulls, and indexes remain visible.
+  This is **value encryption**, not whole-file encryption.
+- Raw database access bypasses DAO encryption. Do not write plaintext into protected
+  fields through raw SQL or introduce plaintext defaults/indexes for sensitive data.
+- `allowPlaintextReads` defaults to false. Enable it explicitly only during a
+  staged legacy migration, then reopen with false. Migration mode permits
+  unmarked plaintext and therefore cannot authenticate those legacy values.
+- Back up keys securely. Losing a key means losing access to its encrypted values;
+  do not regenerate a replacement key to recover an existing database.
+
+To migrate legacy values, register their protected columns, open with the key and
+`allowPlaintextReads: true`, then `await dao.encryptExisting()`. It authenticates
+existing ciphertext and rewrites plaintext in a transaction. Default compaction
+checkpoints the WAL and runs VACUUM outside that transaction; call this migration
+outside `db.transaction`. `compact: false` is available when managing compaction
+separately. Secure deletion is enabled for value-encrypted connections.
+
+Compaction cannot erase old backups, copies, filesystem snapshots, or guarantee
+physical erasure on SSDs. It also does not encrypt unselected fields or provide
+key rotation. Keep the original key available for recovery until you have verified
+a migration and any backup policy.
+
+## Full-file encryption through SQLCipher
+
+For schema and all SQLite pages to be encrypted, supply a **SQLCipher-capable
+`DatabaseFactory`** and `databaseKey: keyBytes` to initialization. QuickeyDB checks
+`PRAGMA cipher_version` and applies a 32-byte raw key before schema access. An
+ordinary Sqflite/SQLite backend throws instead of silently saving unencrypted data.
+
+The default backends are ordinary SQLite; this repository does **not** bundle
+SQLCipher binaries. Configure a compatible native backend in the consuming app
+and test it on every target. See the upstream
+[FFI encryption guide](https://github.com/tekartik/sqflite/blob/master/sqflite_common_ffi/doc/encryption_support.md)
+and [mobile SQLCipher factory](https://pub.dev/documentation/sqflite_sqlcipher/latest/sqflite/databaseFactory.html).
+Native SQLCipher encryption/reopen is not part of this checkout's local test
+matrix; fail-closed behavior on ordinary SQLite is tested.
+
+An existing plaintext SQLite file does not become encrypted by setting a key.
+Use the chosen backend's explicit export/import migration into a new encrypted
+file, verify reopening, then manage the old plaintext copy according to your
+backup policy. Do not use `importDB` with `databaseKey` as an implicit conversion.
+
+## Relations and performance
+
+Read the [complete relation templates and SQL translations](https://github.com/itskenzylimon/quickeydb/blob/main/doc/RELATIONS.md):
+HasOne, HasMany, BelongsTo, nested includes, inner joins, atomic nested inserts,
+explicit many-to-many join tables, deletion constraints and unsupported cases.
+
+
+Register each related DAO and declare SQL foreign keys. Relations are
+`HasMany<ChildDao>`, `HasOne<ChildDao>`, and `BelongsTo<ParentDao>`. `includes` accepts
+DAO types, DAO instances, and ProxyInclude helpers. HasMany hydration groups by
+foreign key, HasOne matches the foreign key, and every requested include runs.
+IN lists are chunked at 400 values; child results are no longer limited by parent
+count. `joins` remains an inner join from a discoverable local foreign key.
+
+For compatibility, nested singular keys retain the existing `toCamelCase` helper's
+actual **snake_case** convention (`UserProfile` → `user_profile`); HasMany uses the
+child table name. Use converters that understand these nested keys. Relation
+writes insert the parent once and use one encompassing transaction.
+
+Performance improvements include batched transactional writes, map-based relation
+matching, strict projections, and incremental Memory writes. The tests include a
+1,000-row transactional insertion diagnostic without a hardware-specific timing
+assertion. Add application-specific indexes and use EXPLAIN QUERY PLAN for large
+queries; the ORM does not automatically index arbitrary predicates.
+
+## Migrations and compatibility boundaries
+
+Additive schema rebuilds run in the version callback's existing transaction,
+preserve explicit indexes/triggers, and roll back failures. Schema parsing supports
+case variations, simple quoted identifiers, nested defaults, and single-column keys.
+Composite keys and arbitrary SQL grammar remain outside automatic metadata support.
+
+Removing/renaming columns, downgrading a database, or rebuilding a referenced table
+with foreign-key enforcement enabled requires an explicit `onUpgrade` or
+`onDowngrade` callback. The automatic path rejects these cases instead of guessing
+and risking data loss. Added required columns still need valid defaults/backfills.
+Use the callback's database directly; never manually BEGIN/COMMIT inside it.
+
+`foreignKeys` defaults to false to retain old connection behavior. New apps can
+choose `foreignKeys: true`; enforcement is configured before the migration
+transaction. Test populated, backed-up databases before changing schemas.
+
+These intentional safety changes affect callers relying on old bugs: filtered
+`destroyAll` now throws, strict `select` excludes other fields, failed destructive
+migrations throw, initialization while another handle is open throws, and Memory
+missing bool values now return null. Existing public entry points and ordinary
+fluent calls remain available. `close()` permits explicit reinitialization.
+
+## Memory helper
+
+Import `package:quickeydb/memory/memory.dart`. The legacy
+`await Memory().instance(memoryKey: 'settings')` works. Optional `encryption` takes
+a `ValueEncryption`; `storagePath` selects a native backing location. Reopening a
+namespace must use the same path and key configuration.
+
+Typed setters/getters cover strings, integers, doubles, booleans, dates, maps, and
+lists. Setters now await the IDB transaction commit. `flush()` explicitly waits for
+pending writes and `close()` flushes then closes the handle. Writes persist only
+changed/deleted keys rather than rewriting the whole namespace. Concurrent initial
+opens share one future. TTL expiry, missing bools, and expired-entry metadata have
+consistent handling; corrupted records surface errors.
+
+Unconfigured namespaces retain the old shifted format for compatibility; this is
+obfuscation, not encryption. Open a legacy namespace with
+`encryption: ValueEncryption(key, allowPlaintextReads: true)` and call
+`encryptExisting()` to rewrite its active entries as authenticated ciphertext.
+Memory namespace/type/timestamp metadata remains visible. It does not flush or
+cache ORM query results. Native and browser IDB imports are separated. The
+Chrome Memory gallery has been checked with persistence across reloads; full
+Wasm and other browser/device combinations remain unverified.
+
+## Example, testing, and contribution
+
+The [reactive example gallery](https://github.com/itskenzylimon/quickeydb/blob/main/example/README.md) contains 19 sections with
+copyable API/view/model source and inline results. It is built reactively by
+[Activity](https://pub.dev/packages/activity), using named routes and shared state.
+The docked bottom console shows operation history and optional development SQL.
+Secure startup reuses the existing notes database and key. The SQL generator
+never executes its input. Unused legacy Task/User template files have been removed.
+
+Tests are grouped by [feature and key function](https://github.com/itskenzylimon/quickeydb/blob/main/test/README.md), with common
+fixtures under `test/support/`. Generated DAO fixtures compile as part of analysis
+and have an integration test for real CRUD and foreign-key enforcement.
+
+```sh
+flutter pub get
+flutter analyze
+flutter test
+# Generator-only checks without Flutter/native build hooks:
+dart --packages=.dart_tool/package_config.json test/codegen/sql_generator_contract.dart
+cd example
+flutter pub get
+flutter test test/gallery
+dart run tool/test_web.dart
+```
+
+See [Observations.md](https://github.com/itskenzylimon/quickeydb/blob/main/Observations.md) for implementation status and remaining
+limits, and [CHANGELOG.md](https://github.com/itskenzylimon/quickeydb/blob/main/CHANGELOG.md) for compatibility notes. Contributions
+should include meaningful regression tests. License: [Apache 2.0](https://github.com/itskenzylimon/quickeydb/blob/main/LICENSE).
+
+## Development SQL diagnostics
+
+```dart
+import 'package:flutter/foundation.dart';
 import 'package:quickeydb/quickeydb.dart';
-import 'Models/user.dart';
-import 'Models/task.dart';
 
-class UserSchema extends DataAccessObject<User> {
-   UserSchema()
-           : super(
-      '''
-          CREATE TABLE user (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT,
-            age INTEGER
-          )
-          ''',
-      relations: [
-         const HasOne<TaskSchema>(),
-      ],
-      converter: Converter(
-         encode: (user) => User.fromMap(user),
-         decode: (user) => user!.toMap(),
-         decodeTable: (user) => user!.toTableMap(),
-      ),
-   );
-
-   Future<List<User?>> getOldUsers() {
-      return where({'age >= ?': 18}).toList();
-   }
-
-   Future<List<User>> doRawQuery() async {
-      // Use your custom query
-      final results = await database!.rawQuery('SELECT * FROM user');
-
-      // when returning result use converter
-      return results.map((result) => converter.encode(result) as User).toList();
-   }
-}
-
-class TaskSchema extends DataAccessObject<Task> {
-   TaskSchema()
-           : super(
-      '''
-          CREATE TABLE tasks (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            body TEXT,
-            status TEXT,
-            level INTEGER DEFAULT "1" NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES user (id)
-          )
-          ''',
-      relations: [
-         const BelongsTo<UserSchema>(),
-      ],
-      converter: Converter(
-         encode: (task) => Task.fromMap(task),
-         decode: (task) => task!.toMap(),
-         decodeTable: (task) => task!.toTableMap(),
-      ),
-   );
-}
-
-
+final logging = QueryLogging(
+  enabled: true, // Still automatically disabled in profile/release builds.
+  includeSql: true, // Opt in to actual SQL templates; bound values are omitted.
+  onQuery: (event) => debugPrint(event.toString()),
+);
+final db = await QuickeyDB.initialize(
+  dbName: 'notes', dbVersion: 1, dataAccessObjects: [NotesDao()],
+  queryLogging: logging,
+);
+// Example: SELECT "notes".* FROM "notes" WHERE "title" = ?
+// Event also includes UTC time, elapsed duration, parameter count and success.
+// SELECT/UPDATE/DELETE include row counts; INSERT does not mislabel its row ID.
+logging.includeSql = false; // Future events contain summaries only.
+logging.enabled = false; // Stop all diagnostic events immediately.
 ```
 
-### 4. Initialize database
-
-```dart
-
-  await QuickeyDB.initialize(
-    persist: false,
-    dbVersion: 1,
-    dataAccessObjects: [
-      UserSchema(),
-      TaskSchema(),
-    ],
-    dbName: 'tascan_v1',
-  );
-
-```
-
-### 5. Simple Example
-
-```dart
-
-  await QuickeyDB.getInstance!<UserTable>()?.create(
-    User(
-      name: 'Kenzy Limon',
-      email: 'itskenzylimon@gmail.com',
-      phone: '+254 712345678',
-      task: Task(name: 'Create Package', body: 'Create a Flutter DB Package')
-    ),
-  );
-```
-
-# Data Access Objects
-
-## Building Queries
-
-```dart
-/// SELECT * FROM user
-QuickeyDB.getInstance!<UserSchema>()!.all; // | returns a list<T>
-
-/// SELECT id FROM user
-QuickeyDB.getInstance!<UserSchema>()!.select(['id']).toList(); // returns a list<T>
-
-/// SELECT * FROM user WHERE name = 'Sam' OR name = 'Mike'
-QuickeyDB.getInstance!<UserSchema>()!.where({'name': 'Kenzy Limon'}).or({'age': '21'}).toList();
-
-/// To use any other operation just pass it after attribute
-// SELECT * FROM user where age >= 18
-QuickeyDB.getInstance!<UserSchema>()!.where({'age >= ?': 18}).toList();
-
-// SELECT * FROM user ORDER BY name DESC
-QuickeyDB.getInstance!<UserSchema>()!.order(['age']).toList();
-
-// SELECT * FROM user GROUP BY name HAVING LENGTH(name) > 3
-QuickeyDB.getInstance!<UserSchema>()!.group(['name']).having('LENGTH(name) > 5').toList();
-
-// SELECT * FROM user LIMIT 50 OFFSET 100
-QuickeyDB.getInstance!<UserSchema>()!.limit(1).offset(10).toList();
-
-// SELECT DISTINCT * FROM user
-QuickeyDB.getInstance!<UserSchema>()!.distinct().toList();
-```
-
-## Include Queries
-
-```dart
-// SELECT * FROM user
-// SELECT * FROM task WHERE id IN (1)
-QuickeyDB.getInstance!<UserSchema>()?.includes([TaskSchema]).toList()
-// [User(id: 1, name: 'Kenzy Limon',... task: [Task(id: 1, name: 'Complete ORM', body: 'Do nice Documentation')])]
-```
-
-## Join Queries
-
-```dart
-// SELECT
-//   task.*,
-//   user.id AS user_id,
-//   user.name AS user_name,
-// FROM task
-//   INNER JOIN user ON user.id = task.user_id
-QuickeyDB.getInstance!<TaskSchema>()!.joins([UserSchema]).toList();
-// [Task(id: 1, name: 'Complete ORM', body: 'Do nice Documentation',... user: User(id: 1, name: 'Kenzy Limon',...))]
-```
-
-## Finder Queries
-
-```dart
-// SELECT * FROM user WHERE name = 'Kenzy Limon' LIMIT 1
-QuickeyDB.getInstance!<UserSchema>()!.isExists({'name': 'John Doe'}); // true
-
-// SELECT * FROM user WHERE id = 1 LIMIT 1
-QuickeyDB.getInstance!<UserSchema>()!.find(1); // User
-
-// SELECT * FROM user WHERE name = 'Mike' LIMIT 1
-QuickeyDB.getInstance!<UserSchema>()!.findBy({'name': 'Jane Doe'}); // User
-
-// SELECT * FROM user
-QuickeyDB.getInstance!<UserSchema>()!.first; // first item
-
-// SELECT * FROM user
-QuickeyDB.getInstance!<UserSchema>()!.last; // last item
-
-//  SELECT * FROM user LIMIT 3
-QuickeyDB.getInstance!<UserSchema>()!.take(10);
-```
-
-## Data Persistence
-
-```dart
-final user = User(id: 1, name: 'Kenzy Limon', age: 21,...);
-
-// INSERT INTO user (id, name, age,...) VALUES (1, 'Kenzy Limon', 21,...)
-QuickeyDB.getInstance!<UserSchema>()!.create(user); // | createAll
-
-// Also you can use `insert` which accepts map
-QuickeyDB.getInstance!<UserSchema>()!.insert(user.toMap()); // insertAll
-
-// UPDATE user SET name = 'Kenzy Limon', age = 21 WHERE id = 1
-QuickeyDB.getInstance!<UserSchema>()!.update(user..name = 'John Doe');
-
-// DELETE FROM user WHERE id = 1
-QuickeyDB.getInstance!<UserSchema>()!.delete(user);
-
-// DELETE FROM user WHERE id = 1
-QuickeyDB.getInstance!<UserSchema>()!.destroy(1); // (truncate)
-```
-
-# Database Relationships
-QuickeyDB has out of box support for relationships, we treasure them and they only
-work when you define the relationships on your models.
-
-After defining the relationships. QuickeyDB will do all the heavy lifting of constructing the underlying SQL queries.
-
-## One to one
-One to One creates a one-to-one relationship between two models.
-
-For example, A user has a profile. The has one relationship needs a foreign key in the related table.
-### Defining relationship on the model
-Once you have created the schema with the required columns,
-you will also have to define the relationship on your schema.
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/logo/One-To-One.png"/>
-</p>
-
-```dart
-// INSERT INTO user (id, name, age,...) VALUES (NULL, 'Jane Doe', 25,...);
-// INSERT INTO task (id, name, user_id,...) VALUES (NULL, 'Test Cases', 1);
-QuickeyDB.getInstance!<TaskSchema>()!.create(
-Task(
-name: 'Test Cases',...
-user: User(
-            name: 'Jane Doe', age: 25
-      ),
-  ),
-)
-```
-
-## One to many
-HasMany creates a one-to-many relationship between two models. For example, A user has many posts. 
-
-The relationship needs a foreign key in the related table.
-
-Following is an example table structure for the one-to-many relationship. 
-The tasks.user_id is the foreign key and forms the relationship with the user.id column.
-
-### Defining relationship on the model
-Once you have created the tables with the required columns, you will also have to define the relationship on your schema.
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/itskenzylimon/quickeydb/main/assets/logo/One-To-Many.png"/>
-</p>
-
-```dart
-// INSERT INTO user (id, name, age) VALUES (NULL, 'John Doe', 10);
-// INSERT INTO task (id, name, user_id) VALUES (NULL, 'Write Documentation', 1);
-QuickeyDB.getInstance!<UserSchema>()!.create(
-User(
-name: 'Jane Doe',
-age: 25,...
-task: [
-  Task(name: 'Test Cases'),...
-    ],
-  ),
-)
-```
-
-## Calculations Methods
-
-```dart
-/// SELECT COUNT(*) FROM user
-QuickeyDB.getInstance!<UserSchema>()!.count(); // 1001
-
-/// SELECT COUNT(email) FROM user
-QuickeyDB.getInstance!<UserSchema>()!.count('email'); // 600
-
-/// SELECT AVG(age) FROM user
-QuickeyDB.getInstance!<UserSchema>()!.average('age'); // 35
-
-/// SELECT id FROM user
-QuickeyDB.getInstance!<UserSchema>()!.ids; // [1, 2, 3,...]
-
-/// SELECT MAX(age) FROM user
-QuickeyDB.getInstance!<UserSchema>()!.maximum('age'); // 69
-
-/// SELECT MIN(age) FROM user
-QuickeyDB.getInstance!<UserSchema>()!.minimum('age'); // 18
-
-/// SELECT name, age FROM user LIMIT 1
-QuickeyDB.getInstance!<UserSchema>()!.pick(['name', 'age']); // ['John Doe', 96]
-
-/// SELECT name FROM user
-QuickeyDB.getInstance!<UserSchema>()!.pluck(['name', 'age']); // [['John Doe', '96'],...]
-
-/// SELECT SUM(age) FROM user
-QuickeyDB.getInstance!<UserSchema>()!.sum('age'); // 404
-```
-
-## Helper Methods
-
-```dart
-/// convert query to list
-QuickeyDB.getInstance!<UserSchema>()!.foo().bar().toList(); // [User,...]
-
-/// convert query to map
-QuickeyDB.getInstance!<UserSchema>()!.foo().bar().toMap(); // [{id: 1, name: 'Mike', age: 10}, ...]
-
-/// alias [count] > 0
-QuickeyDB.getInstance!<UserSchema>()!.foo().bar().isEmpty; // | false
-```
-
-## Data Tables Relations
-
-Make sure to add `FOREIGN KEY` between tables.
-
-### Belongs To
-
-```dart
-// Database/schema.dart
-class TaskSchema extends DataAccessObject<Task> {
-  TaskSchema()
-      : super(
-    '''
-          CREATE TABLE tasks (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            body TEXT,
-            status TEXT,
-            level INTEGER DEFAULT "1" NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES user (id)
-          )
-          ''',
-    relations: [
-      const BelongsTo<UserSchema>(),
-    ],
-    converter: Converter(
-      encode: (task) => Task.fromMap(task),
-      decode: (task) => task!.toMap(),
-      decodeTable: (task) => task!.toTableMap(),
-    ),
-  );
-}
-```
-
-### Has One
-
-```dart
-// Database/schema.dart
-class TaskSchema extends DataAccessObject<Task> {
-  TaskSchema()
-      : super(
-    '''
-          CREATE TABLE tasks (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            body TEXT,
-            status TEXT,
-            level INTEGER DEFAULT "1" NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES user (id)
-          )
-          ''',
-    relations: [
-      const HasOne<UserSchema>(),
-    ],
-    converter: Converter(
-      encode: (task) => Task.fromMap(task),
-      decode: (task) => task!.toMap(),
-      decodeTable: (task) => task!.toTableMap(),
-    ),
-  );
-}
-```
-
-### Has Many
-
-```dart
-// Database/schema.dart
-class UserSchema extends DataAccessObject<User> {
-  UserSchema()
-      : super(
-    '''
-          CREATE TABLE user (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT,
-            age INTEGER
-          )
-          ''',
-    relations: [
-      const HasMany<TaskSchema>(),
-    ],
-    converter: Converter(
-      encode: (user) => User.fromMap(user),
-      decode: (user) => user!.toMap(),
-      decodeTable: (user) => user!.toTableMap(),
-    ),
-  );
-}
-```
-
-## Custom SQL Queries
-
-_QuickeyDB_ is scalable with custom and complex queries so for example let's say we want to filter old users we can add:
-
-```dart
-class UserSchema extends DataAccessObject<User> {
-
-  ...
-  
-  Future<List<User?>> getOldUsers() {
-  return where({'age >= ?': 18}).toList();
-  }
-  
-  ...
-  
-}
-```
-
-You can also use more complex queries by accessing `database` object
-
-```dart
-class UserSchema extends DataAccessObject<User> {
-
-  ...
-  
-  Future<List<User>> doRawQuery() async {
-    // Use your custom query
-    final results = await database!.rawQuery('SELECT * FROM user');
-
-    // when returning result use converter
-    return results.map((result) => converter.encode(result) as User).toList();
-  }
-  
-  ...
-  
-}
-```
-
-# Persist Data Storage
-
-To use persist database set `persist` property to `true`
-
-```dart
-final quickeyDB = QuickeyDB(
-  persist: true',
-)
-```
-
-# Import Local Database
-
-To import exists database:
-
-1. Copy exists database to `assets/database.db`
-2. Add path to assets in `pubspec.yaml`
-
-```diff
-+ flutter:
-+   assets:
-+     - assets/database.db
-```
-
-3. Set `importDB` property to `true`
-
-```dart
-final quickeyDB = QuickeyDB(
-  importDB: true,
-)
-```
-
-4. Run
-
-# Database Migration
-Because we depend on CREATE TABLE command as explained, so one of the best solutions was to use force migration by creating a new table and moving all data:
-
-
-1. Modify your SQL command by adding or removing some definitions like:
-
-```dart
-class UserSchema extends DataAccessObject<User> {
-  UserSchema()
-      : super(
-    '''
-          CREATE TABLE user (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT,
-            address TEXT,
-            age INTEGER
-          )
-          ''',
-    relations: [
-      const HasOne<TaskSchema>(),
-    ],
-    converter: Converter(
-      encode: (user) => User.fromMap(user),
-      decode: (user) => user!.toMap(),
-      decodeTable: (user) => user!.toTableMap(),
-    ),
-  );
-}
-```
-
-1. Dont forget to change the database version.
-
-```dart
-
-  final quickeyDB = QuickeyDB.initialize!(
-     dbVersion: 2, // any version
-  );
-
-```
-
-
-_Please Note That :: **Never** add `NOT NULL` columns while migrating unless you pass `DEFAULT` value._
-
-
-# Transaction
-
-Calls in Transaction must only be done using the transaction object (`txn`), avoid using the `database` or `QuickeyDB.getInstance` inside transaction as this will trigger a databased dead-lock.
-
-Keep in mind that the callbacks `onCreate` `onUpgrade` `onDowngrade` are already internally wrapped in a transaction, so there is no need to wrap your statements within those callbacks.
-
-```dart
-
-await QuickeyDB.getInstance!.database!.transaction((txn) async {
-
-txn.insert('users', { mapped data }, conflictAlgorithm: ConflictAlgorithm.replace);
-txn.delete('users', where: 'id = ?', whereArgs: [id]);
-txn.update('users', { mapped data });
-
-txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
-txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
-txn.rawDelete('DELETE FROM users WHERE name = ?', ['Kenzy Limon']);
-txn.rawQuery('SELECT COUNT(*) FROM users');
-
-await txn.execute('CREATE TABLE task_types (id INTEGER PRIMARY KEY)');
-
-});
-
-```
-
-# Batch support
-
-```dart
-
-var batch = QuickeyDB.getInstance!.database!.batch();
-batch.insert('users', {'name': 'Kenzy'});
-batch.update('users', {'name': 'Kenzy Limon'}, where: 'name = ?', whereArgs: ['Kenzy']);
-batch.delete('users', where: 'name = ?', whereArgs: ['Kenzy']);
-var results = await batch.commit();
-
-```
-
-Getting the result for each operation has a cost (id for insertion and number of changes for update and delete). 
-
-On Android where an extra SQL request is executed. If you don't care about the result and worry about performance in big batches, you can use
-
-```dart
-await batch.commit(noResult: true);
-```
-
-Note during a transaction, the batch won't be committed until the transaction is committed
-
-```dart
-
-await database.transaction((txn) async {
-  
-var batch = txn.batch();
-
-// ...
-
-await batch.commit();
-
-});
-
-```
-
-The actual commit will happen when the transaction is committed. 
-
-By default, a batch stops as soon as it encounters an error (which typically reverts the uncommitted changes)
-to change this action, you have to set `continueOnError` to `false`
-
-```dart
-await batch.commit(continueOnError: true);
-```
-
-
-# Memory Cache
-Memory is meant to make data management of any string type fast and easy. 
-You can easily get any type of datatype (Int, Strings, Booleans, Doubles, Map, Models and T Any kind of data) 
-from within any state of the app.
-
-### Instantiation
-
-```dart
-// Import memory class
-import 'package:quickeydb/memory/memory.dart';
-
-  // Make main function async
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Add bellow line to main() func
-  Memory memory = await Memory().initMemory();
-  runApp(const MyApp());
-}
-```
-
-To reference an instance of Memory, use one of the following methods
-
-```dart
-
-Memory memory = await Memory().initMemory();
-
-bool hasMemory = await memory.hasMemory('message');
-// print('@@@ -- hasMemory 1 -- $hasMemory');
-
-/// You can also use you own custom instance on memory and access it using the memoryKey
-/// for this to work you need to pass the correct memoryKey to get the right instance
-Memory memory = await Memory().instance(memoryKey: 'customMemory');
-
-
-```
-
-### Methods
-
-Storage and retrieval methods are demonstrated in the code snippet below:
-
-```dart
-
-/// initialise Memory instance
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  ///initialize memory
-  await Memory.instance(filename:"memory.txt").initMemory();
-  runApp(const MyApp());
-}
-
-///To retrieve an instance of Memory in another dart file, use one of the following ways:
-///Note: this will retrieve the current initialization of the Memory object
-///It is not assured you will get the most current data using synchronous functions getString(), getBool(), getInt() and getDouble()
-///To get most current data, either use the instantiation below or retrieve data using async function await memory.readMemory('key')
-
-Memory memory = await Memory().instance();
-
-/// You can also use you own custom instance on memory and access it using the memoryKey
-/// for this to work you need to pass the correct memoryKey to get the right instance
-Memory memory = await Memory().instance(memoryKey: 'customMemory');
-
-
-/// you can easily check if any data is saved on memory using [isMemoryEmpty]
-await memory.isMemoryEmpty()
-
-
-///Reading data
-// await memory.setMap('message', {});
-// await memory.setInt('message', 11);
-// await memory.setString('message', 'Hakuna Matata');
-// await memory.setBool('message', true);
-await memory.setDouble('message', 0.99);
-
-
-String? setDouble = await memory.getString('message');
-// print('@@@ -- setMap 1 -- $setDouble');
-hasMemory = await memory.hasMemory('message');
-// print('@@@ -- hasMemory 2 -- $hasMemory');
-await memory.setDouble('message', message);
-setDouble = await memory.getString('message');
-// print('@@@ -- setMap 2 -- $setDouble');
-await memory.deleteMemory('message');
-hasMemory = await memory.hasMemory('message');
-// print('@@@ -- hasMemory 3 -- $hasMemory');
-
-```
-
-
-```dart
-
-  final quickeyDB = QuickeyDB.initialize!(
-     debugging: false, // any version
-  );
-
-```
-
-
-# Cool Color Logger
-
-Note: By default `logger` is _enabled_ while you're in debugging mode, if you want to disable it just set `debugging` property to `false`.
-
-```dart
-
-  final quickeyDB = QuickeyDB.initialize!(
-     debugging: false, // any version
-  );
-
-```
-
-
-# Supported Data types
-
-`DateTime` is not a supported SQLite type. Personally I store them as
-int (millisSinceEpoch) or string (iso8601)
-
-`bool` is not a supported SQLite type. Use `INTEGER` and 0 and 1 values.
-
-### INTEGER
-
-* Dart type: `int`
-* Supported values: from -2^63 to 2^63 - 1
-
-### REAL
-
-* Dart type: `num`
-
-### TEXT
-
-* Dart type: `String`
-
-### BLOB
-
-* Dart type: `Uint8List`
-
-
-# Platform setup
-## Linux
-
-```dart
-libsqlite3 and libsqlite3-dev linux packages are required.
-```
-
-One time setup for Ubuntu (to run as root):
-
-```dart
-dart tool
-/
-
-linux_setup.dart
-
-or
-
-sudo apt
--
-get -
-
-y install
-libsqlite3-0
-libsqlite3-dev
-```
-
-## MacOS
-
-Should work as is.
-
-## Web
-
-Copy sqflite_sw.js and sqlite3.wasm from the example/web folder to your root/web folder.
-import the database as follows.
-
-```dart
-import 'package:quickeydb/quickeydb.dart' if (dart.library.html)
-'package:quickeydb/quickeywebdb.dart';
-```
-
-## Windows
-
-Should work as is in debug mode (`sqlite3.dll is bundled`).
-
-In release mode, add `sqlite3.dll` in same folder as your executable.
-
-# Taskan Crud Example
-
-- [Taskan Crud Example](https://github.com/itskenzylimon/quickeydb/example)
-
-# Features Request & Bug Reports
-
-Feature requests and bugs at the [issue tracker](https://github.com/itskenzylimon/quickeydb/issues).
-
-## Contributing
-
-Quickey Database ORM is an open source project, and thus contributions to this project are welcome - please feel free to [create a new issue](https://github.com/itskenzylimon/quickeydb/issues/new/choose) if you encounter any problems, or [submit a pull request](https://github.com/itskenzylimon/quickeydb/pulls). For community contribution guidelines, please review the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-If submitting a pull request, please ensure the following standards are met:
-
-1) Code files must be well formatted (run `flutter format .`).
-
-2) Tests must pass (run `flutter test`).  New test cases to validate your changes are highly recommended.
-
-3) Implementations must not add any project dependencies.
-
-4) Project must contain zero warnings. Running `flutter analyze` must return zero issues.
-
-5) Ensure docstrings are kept up-to-date. New feature additions must include docstrings.
-
-
-
-
-## Additional information
-
-This package has **THREE CORE** dependencies including core SQLite Packages.
-```dart
-- sqflite_common_ffi // for desktop apps
-- sqflite
-- collection
-```
-
-Developed by:
-
-© 2022 [Kenzy Limon](https://www.kenzylimon.com)
-# Articles and videos
-
-[Flutter Quickey Database ORM](https://medium.com/@itskenzylimon/flutter-quickey-database-orm-e1d4208f903a) - Medium Article
-
-## Found this project useful? ❤️
-
-If you found this project useful, then please consider giving it a ⭐️ on Github and sharing it with your friends via social media.
+Defaults are silent. `debugging: true` remains a legacy debug-only summary switch.
+Observers cannot change a query's success/failure, and error messages/parameter
+values are not included in events. SQL expressions you write can contain literals:
+use bound values and never embed secrets in SQL. This is DAO statement logging,
+not a full database audit: direct raw SQL, opening/migration work and encryption
+maintenance are outside its scope. A successful statement can still belong to a
+transaction that later rolls back. Do not treat a log line as a commit receipt.
+The example only enables collection in debug builds; its Raw SQL switch affects
+future statements, with a bounded 120-event history.
+
+## Updates, migrations and compatibility
+
+3.0.0 follows published **1.2.0+8**, not the unpublished intermediate checkout
+version. See [CHANGELOG.md](https://github.com/itskenzylimon/quickeydb/blob/main/CHANGELOG.md) for the complete release delta and
+[the migration guide](https://github.com/itskenzylimon/quickeydb/blob/main/doc/MIGRATING_TO_3.md) for before/after code, schema upgrades,
+conflict/FK behavior, encryption recovery, browser assets and integration conflicts.
+The release checklist records validation and remaining gates; preparation does not
+mean an artifact has already been published.
+
+## Documentation approach
+
+The copyable schema → DAO → query → SQL examples take teaching inspiration from
+[GORM documentation](https://gorm.io/docs/), with original QuickeyDB Dart code.
+See [relation attribution and capability limits](https://github.com/itskenzylimon/quickeydb/blob/main/doc/RELATIONS.md#context-and-attribution).
+GORM features are not automatically QuickeyDB features.
+
+## Support, gifts and community
+
+Help fund and sustain open-source work.
+[GitHub community](https://github.com/itskenzylimon) ·
+[Report an issue](https://github.com/itskenzylimon/quickeydb/issues) ·
+[Blog & Articles](https://medium.com/@itskenzylimon) ·
+[QuickeyDB on pub.dev](https://pub.dev/packages/quickeydb).

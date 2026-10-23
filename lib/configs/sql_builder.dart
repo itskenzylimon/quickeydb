@@ -363,7 +363,7 @@ String unescapeValueKeyName(String name) {
 /// SQLite keywords to escape.
 ///
 /// This list was built from the whole set of keywords
-/// ([allKeywords] kept here for reference
+/// (`allKeywords` kept here for reference
 /// ignore: prefer_collection_literals
 final Set<String> escapeNames = <String>{
   'add',

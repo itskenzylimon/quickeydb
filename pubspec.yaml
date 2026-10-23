@@ -1,32 +1,55 @@
 name: quickeydb
-description: QuickeyDB is a simple ORM inspired from ActiveRecord, built on-top of Sqflite.
+description: SQLite ORM for Flutter with typed DAOs, scoped queries, relations, transactions, encrypted values and browser storage.
 
-homepage: https://github.com/itskenzylimon/quickey
+homepage: https://github.com/itskenzylimon/quickeydb
+repository: https://github.com/itskenzylimon/quickeydb
+issue_tracker: https://github.com/itskenzylimon/quickeydb/issues
+funding:
+  - https://aflare.space
 
-version: 1.2.1+9
+version: 3.0.0
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.0"
 
 dependencies:
   flutter:
     sdk: flutter
   # Mobile SQLite
   sqflite: ^2.3.0
-#  sqlite3: ^3.1.0
 
   # Desktop SQLite
   sqflite_common_ffi: ^2.3.0+2
+  sqflite_common_ffi_web: ">=0.3.0 <2.0.0"
 
   idb_shim: ^2.6.7+1
 
   # Optional but common
   path_provider: ^2.0.15
   collection: ^1.17.2
+  path: ^1.8.3
+  sqflite_common: ^2.5.0
+  cryptography: ^2.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.4.2
 
   flutter_lints: ^2.0.3
+
+topics:
+  - sqlite
+  - database
+  - orm
+  - encryption
+
+screenshots:
+  - description: QuickeyDB Material gallery with live database statistics and feature navigation.
+    path: example/gallery-preview.jpg
+  - description: CRUD source examples with real SQLite results.
+    path: example/gallery-source-preview.jpg
+  - description: Responsive QuickeyDB overview on a narrow screen.
+    path: example/gallery-mobile.png
+  - description: Tested keyset pagination and atomic inbox replacement workflows.
+    path: example/gallery-workflows.jpg

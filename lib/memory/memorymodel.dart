@@ -3,10 +3,10 @@ class MemoryModel {
   String data;
   String? type;
 
-  int? version;          // increments each update
-  String? createdAt;     // microsecondsSinceEpoch
-  String? updatedAt;     // microsecondsSinceEpoch
-  String? expiresAt;     // microsecondsSinceEpoch (for TTL)
+  int? version; // increments each update
+  String? createdAt; // microsecondsSinceEpoch
+  String? updatedAt; // microsecondsSinceEpoch
+  String? expiresAt; // microsecondsSinceEpoch (for TTL)
 
   MemoryModel({
     required this.name,

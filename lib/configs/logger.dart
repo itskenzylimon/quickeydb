@@ -1,57 +1,35 @@
 import 'package:flutter/foundation.dart';
-import 'package:quickeydb/configs/sql_builder.dart';
+import 'sql_builder.dart';
 
+/// Optional SQL diagnostics. Bound values are deliberately never logged.
 class Logger {
-  static final _stopwatch = Stopwatch();
-
-  Logger._start() {
-    _stopwatch
-      ..reset()
-      ..start();
+  static void _observe(Type? type, Future future, String sql) {
+    final watch = Stopwatch()..start();
+    // Handle both paths on this observer without introducing unhandled futures.
+    future.then<void>((_) {
+      if (kDebugMode) {
+        debugPrint('$type (${watch.elapsedMilliseconds} ms) $sql');
+      }
+    }, onError: (Object _, StackTrace __) {
+      if (kDebugMode) {
+        debugPrint('$type (${watch.elapsedMilliseconds} ms) SQL failed');
+      }
+    });
   }
 
   Logger.query(Type type, Future future, SqlBuilder builder) {
-    Logger._start();
-    future
-        .whenComplete(() => _log('${_elapsed(type)}\x1B[37m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
+    _observe(type, future, builder.sql);
   }
-
   Logger.insert(Type type, Future future, SqlBuilder builder) {
-    Logger._start();
-    future
-        .whenComplete(() => _log('${_elapsed(type)}\x1B[32m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
+    _observe(type, future, builder.sql);
   }
-
   Logger.update(Type type, Future future, SqlBuilder builder) {
-    Logger._start();
-    future
-        .whenComplete(() => _log('${_elapsed(type)}\x1B[33m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
+    _observe(type, future, builder.sql);
   }
-
   Logger.destroy(Type type, Future future, SqlBuilder builder) {
-    Logger._start();
-    future
-        .whenComplete(() => _log('${_elapsed(type)}\x1B[31m -- ${builder.sql} '
-            '[${builder.arguments!.join(', ')}] --- \x1B[0m'));
+    _observe(type, future, builder.sql);
   }
-
   Logger.sql(Future future, String sql) {
-    Logger._start();
-    future.whenComplete(
-        () => _log('\x1B[36m -- ${sql.replaceAll('null ', '')} --- \x1B[0m'));
-  }
-
-  _elapsed(dynamic type) {
-    return '\x1B[30m$type (${_stopwatch.elapsed.inMilliseconds} ms)'
-        ' \x1B[0m';
-  }
-
-  _log(body) {
-    if (kDebugMode) {
-      return debugPrint('\x1B[35m$body\x1B[0m');
-    }
+    _observe(null, future, sql);
   }
 }

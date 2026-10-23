@@ -1,4 +1,4 @@
-import 'package:sqflite_common/src/value_utils.dart';
+import '../configs/value_utils.dart';
 
 /// Insert/Update conflict resolver
 enum ConflictAlgorithm {
@@ -96,14 +96,14 @@ class SqlBuilder {
   ///            formatted as LIMIT clause. Passing null denotes no LIMIT clause.
   SqlBuilder.query(String table,
       {bool? distinct,
-        List<String>? columns,
-        String? where,
-        List<Object?>? whereArgs,
-        String? groupBy,
-        String? having,
-        String? orderBy,
-        int? limit,
-        int? offset}) {
+      List<String>? columns,
+      String? where,
+      List<Object?>? whereArgs,
+      String? groupBy,
+      String? having,
+      String? orderBy,
+      int? limit,
+      int? offset}) {
     if (groupBy == null && having != null) {
       throw ArgumentError(
           'HAVING clauses are only permitted when using a groupBy clause');
@@ -209,8 +209,8 @@ class SqlBuilder {
 
   SqlBuilder.update(String table, Map<String, Object?> values,
       {String? where,
-        List<Object?>? whereArgs,
-        ConflictAlgorithm? conflictAlgorithm}) {
+      List<Object?>? whereArgs,
+      ConflictAlgorithm? conflictAlgorithm}) {
     if (values.isEmpty) {
       throw ArgumentError('Empty values');
     }
@@ -353,8 +353,8 @@ bool _isDigit(int codeUnit) => codeUnit >= _digit0 && codeUnit <= _digit9;
 /// Returns `true` if [codeUnit] represents matchs azAZ_.
 bool _isAlphaOrUnderscore(int codeUnit) =>
     (codeUnit >= _lowercaseA && codeUnit <= _lowercaseZ) ||
-        (codeUnit >= _uppercaseA && codeUnit <= _uppercaseZ) ||
-        codeUnit == _underscore;
+    (codeUnit >= _uppercaseA && codeUnit <= _uppercaseZ) ||
+    codeUnit == _underscore;
 
 /// True if already escaped
 bool _areCodeUnitsEscaped(List<int> codeUnits) {
@@ -406,7 +406,7 @@ String unescapeValueKeyName(String name) {
 /// SQLite keywords to escape.
 ///
 /// This list was built from the whole set of keywords
-/// ([allKeywords] kept here for reference
+/// (`allKeywords` kept here for reference
 /// ignore: prefer_collection_literals
 final Set<String> escapeNames = <String>{
   'add',

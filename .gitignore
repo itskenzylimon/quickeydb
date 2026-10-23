@@ -66,3 +66,37 @@ GeneratedPluginRegistrant.java
 
 # Local files
 .local/v
+# Nested generated output, local databases and private development configuration.
+**/.dart_tool/
+**/build/
+**/coverage/
+**/.pub/
+**/.pub-cache/
+**/.gradle/
+**/.cxx/
+**/Pods/
+**/.symlinks/
+**/ephemeral/
+**/DerivedData/
+**/.env
+**/.env.*
+**/*.db
+**/*.db-journal
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+**/*.jks
+**/*.keystore
+**/key.properties
+**/local.properties
+**/pubspec_overrides.yaml
+**/flutter_export_environment.sh
+**/Generated.xcconfig
+**/web/*.js.deps
+**/web/*.js.map
+**/test/.web-assets/
+**/test/.api_snippets/
+
+/example/gallery-overview.png
+/example/gallery-source-preview.png

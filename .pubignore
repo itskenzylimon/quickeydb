@@ -62,3 +62,50 @@ GeneratedPluginRegistrant.java
 
 # Local files
 .local/v
+
+# Local tools, generated output and historical review notes are not package APIs.
+**/build/
+**/.dart_tool/
+**/.DS_Store
+**/coverage/
+**/*.log
+**/.flutter-plugins-dependencies
+**/flutter/ephemeral/
+**/Flutter/ephemeral/
+
+# Private configuration, nested output and workspace-only gallery dependencies.
+**/.git/**
+**/.idea/**
+**/.vscode/**
+**/node_modules/**
+**/Pods/**
+**/.gradle/**
+**/.cxx/**
+**/*.lock
+**/*.iml
+**/.env
+**/.env.*
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.mobileprovision
+**/key.properties
+**/pubspec_overrides.yaml
+**/test/.web-assets/**
+**/*.app/**
+**/*.dSYM/**
+**/*.apk
+**/*.aab
+**/*.ipa
+example/pubspec.yaml
+
+# PNG capture originals have compressed JPEG equivalents in the gallery docs.
+example/gallery-overview.png
+example/gallery-source-preview.png
+
+**/*.db
+**/*.db-journal
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
